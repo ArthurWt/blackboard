@@ -1,0 +1,148 @@
+import xs from 'xstream';
+import {run} from '@cycle/xstream-run';
+import {makeDOMDriver} from '@cycle/dom';
+import {html} from 'snabbdom-jsx';
+
+
+
+const getDimensions = () => {
+ 
+  const width = window.innerWidth
+    || document.documentElement.clientWidth
+    || document.body.clientWidth
+
+  const height = window.innerHeight
+    || document.documentElement.clientHeight
+    || document.body.clientHeight
+  return {
+    width,
+    height
+  }
+
+
+}
+function main(sources) {
+	const $colors = sources.DOM.select(".color")
+	.events("click")
+	.map(ev => {
+	  return {color : ev.target.style.backgroundColor}
+	})
+
+  const $mouseDown = sources.DOM.select('canvas')
+    .events('mousedown')
+    .map(ev => {
+      return { draw : true, ctx: ev.target.getContext('2d'), canvas : ev.target}
+    })
+
+  const $mouseMove = sources.DOM.select('canvas')
+    .events('mousemove')
+    .map(ev => {return { x : ev.offsetX, y : ev.offsetY}})
+    .fold((a, b) => {
+      return {...a, last : {...a.next}  ,  next : {...b}}
+    }, {last : {x : null, y : null}, next : {x : null, y : null}})
+    .map( ({last, next}) => {
+      const dx = last.x ? next.x - last.x : null
+      const dy = last.y ? next.y - last.y  : null
+      return {last, next, diff : {dx, dy}}
+
+    })
+
+
+  const $sav = sources.DOM.select('#sav')
+    .events('click')
+    .map(ev => {
+
+      const canvas = document.getElementById("canvas")
+      const image    = canvas.toDataURL("image/png");
+      const w=window.open('about:blank','image from canvas');
+      w.document.write("<img src='"+image+"' alt='from canvas'/>");
+    })
+
+
+  const $mouseUp = sources.DOM.select('canvas')
+    .events('mouseup')
+    .map(ev => { 
+		return { draw : false }})
+
+  
+
+  const dmi$ = xs.merge(
+  	$mouseDown, $mouseMove, $mouseUp, 
+	$colors, $sav)
+    .fold((a, b)=> {
+      return {...a, ...b}
+    }, {draw : false, color : 'black', speedCount : 0})
+    .filter(t => t.draw)
+
+
+  const sinks = {
+    DOM: dmi$
+      .fold( (a , {last, next, ctx, diff, canvas, color, speedCount}) => {
+	  	console.log(color)
+        if(!a.set){
+          canvas.style.width = a.w + 'px'
+          canvas.style.height = a.h + 'px'
+          canvas.width = a.w * 2
+          canvas.height = a.h * 2
+
+        }
+        if(last.x && last.y) {
+          const speed = Math.pow(diff.dx * diff.dx + diff.dy * diff.dy, 0.5)
+		  if(speed > 20) {
+		    if(typeof window.speedCount === 'undefined'){
+			  window.speedCount = 0
+			}
+			window.speedCount ++
+			if(window.speedCount > 5){
+		  		ctx.clearRect(0, 0, canvas.width, canvas.height)
+				window.location.reload()
+				window.speedCount = 0
+			}
+		  }
+
+		  ctx.beginPath()
+		  ctx.fillStyle=color
+		  ctx.arc(last.x * 2, last.y * 2, 1, 0, Math.PI * 2)
+		  ctx.fill()
+
+		  ctx.beginPath()
+		  ctx.strokeStyle=color
+		  ctx.lineWidth =5
+		  ctx.moveTo(last.x * 2, last.y * 2)
+		  ctx.lineTo(next.x * 2, next.y * 2)
+		  ctx.stroke()
+
+        }
+
+        a.set = true
+        return a
+      }, {  w : getDimensions().width, h : getDimensions().height, set : false, lastLineWidth : 6})
+      .map(({w, h}) => {
+        return (
+		
+		<div>
+          <canvas id="canvas" width={w} height={h} style={{zIndex :0, position:"absolute", top : 0, left:0, cursor : "crosshair"}}></canvas>
+		  <div id='panel' style={{position:'absolute',top:0,left:0, zIndex : 5}}>
+		  	<div className='color' target='blue' style={{backgroundColor:'blue', width:'20px', height:'20px', float:'left'}}></div>
+		  	<div className='color' target='yellow' style={{backgroundColor:'yellow', width:'20px', height:'20px', float:'left'}}></div>
+
+		  	<div className='color' target='red' style={{backgroundColor:'red', width:'20px', height:'20px', float:'left'}}></div>
+
+		  	<div className='color' target='black' style={{backgroundColor:'black', width:'20px', height:'20px', float:'left'}}></div>
+		  </div>
+      <div style={{position : 'absolute', zIndex : 5, top : 0, right : '10px'}}>
+        <input id="sav" type="button" value="save" />
+      </div>
+		  </div>
+
+        )
+      })
+  }
+  return sinks;
+}
+
+const drivers = {
+  DOM: makeDOMDriver('#app')
+};
+
+run(main, drivers);
