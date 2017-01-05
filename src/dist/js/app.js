@@ -82,15 +82,15 @@
 	
 	var _menu = __webpack_require__(8);
 	
-	var _Blackboard = __webpack_require__(9);
+	var _Blackboard = __webpack_require__(10);
 	
-	var _init = __webpack_require__(10);
+	var _init = __webpack_require__(12);
 	
-	var _socket_recorder = __webpack_require__(29);
+	var _socket_recorder = __webpack_require__(30);
 	
-	__webpack_require__(31);
+	__webpack_require__(32);
 	
-	var _course = __webpack_require__(38);
+	var _course = __webpack_require__(9);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -292,7 +292,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _course = __webpack_require__(38);
+	var _course = __webpack_require__(9);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -395,6 +395,59 @@
 
 /***/ },
 /* 9 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/***********************************************
+	 * 
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var ACTION_SET_COURSE = exports.ACTION_SET_COURSE = "set_course@Blackboard";
+	var ACTION_SWITCH_TO = exports.ACTION_SWITCH_TO = "switch_to@Blackboard";
+	
+	var set_course = exports.set_course = function set_course(course) {
+	  return {
+	    type: ACTION_SET_COURSE,
+	    course: course
+	  };
+	};
+	
+	var switch_to = exports.switch_to = function switch_to(topic, id, title) {
+	  return {
+	    type: ACTION_SWITCH_TO,
+	    topic: topic,
+	    id: id,
+	    title: title
+	  };
+	};
+
+/***/ },
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -412,9 +465,9 @@
 	
 	var _reactRedux = __webpack_require__(5);
 	
-	var _course = __webpack_require__(38);
+	var _course = __webpack_require__(9);
 	
-	var _draw2 = __webpack_require__(30);
+	var _draw2 = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -778,7 +831,86 @@
 	var Blackboard = exports.Blackboard = (0, _reactRedux.connect)(map)(_Blackboard);
 
 /***/ },
-/* 10 */
+/* 11 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/***********************************************
+	 *
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var ACTION_DRAW = exports.ACTION_DRAW = "draw@Blackboard";
+	var ACTION_DRAW_SEGMENT = exports.ACTION_DRAW_SEGMENT = "draw_seg@Blackboard";
+	var ACTION_CLEAR = exports.ACTION_CLEAR = "clear@Blackboard";
+	
+	var draw = exports.draw = function draw(course, topic, id, x, y, color, penSize) {
+	  return {
+	    type: ACTION_DRAW,
+	    course: course,
+	    topic: topic,
+	    id: id,
+	    x: x,
+	    y: y,
+	    color: color,
+	    penSize: penSize
+	  };
+	};
+	
+	var draw_segment = exports.draw_segment = function draw_segment(course, topic, id) {
+	  return {
+	    type: ACTION_DRAW_SEGMENT,
+	    course: course,
+	    topic: topic,
+	    id: id
+	  };
+	};
+	
+	// export const set_color = (course, topic, id, color) => {
+	//   return {
+	//     type : ACTION_SET_COLOR,
+	//     course,
+	//     topic,
+	//     id,
+	//     color : color
+	//   }
+	// }
+	
+	var clear = exports.clear = function clear(course, topic, id) {
+	  return {
+	    course: course,
+	    topic: topic,
+	    id: id,
+	    type: ACTION_CLEAR
+	  };
+	};
+
+/***/ },
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -788,15 +920,15 @@
 	});
 	exports.init = undefined;
 	
-	var _redux = __webpack_require__(11);
+	var _redux = __webpack_require__(13);
 	
-	var _reduxPersist = __webpack_require__(12);
+	var _reduxPersist = __webpack_require__(14);
 	
-	var _course = __webpack_require__(37);
+	var _course = __webpack_require__(29);
 	
-	var _socket_recorder = __webpack_require__(29);
+	var _socket_recorder = __webpack_require__(30);
 	
-	var _reduxThunk = __webpack_require__(28);
+	var _reduxThunk = __webpack_require__(31);
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
@@ -851,13 +983,13 @@
 	 */
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(3))(187);
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -867,31 +999,31 @@
 	});
 	exports.storages = exports.purgeStoredState = exports.persistStore = exports.getStoredState = exports.createTransform = exports.createPersistor = exports.autoRehydrate = undefined;
 	
-	var _asyncLocalStorage = __webpack_require__(13);
+	var _asyncLocalStorage = __webpack_require__(15);
 	
 	var _asyncLocalStorage2 = _interopRequireDefault(_asyncLocalStorage);
 	
-	var _autoRehydrate = __webpack_require__(17);
+	var _autoRehydrate = __webpack_require__(19);
 	
 	var _autoRehydrate2 = _interopRequireDefault(_autoRehydrate);
 	
-	var _createPersistor = __webpack_require__(21);
+	var _createPersistor = __webpack_require__(23);
 	
 	var _createPersistor2 = _interopRequireDefault(_createPersistor);
 	
-	var _createTransform = __webpack_require__(24);
+	var _createTransform = __webpack_require__(26);
 	
 	var _createTransform2 = _interopRequireDefault(_createTransform);
 	
-	var _getStoredState = __webpack_require__(25);
+	var _getStoredState = __webpack_require__(27);
 	
 	var _getStoredState2 = _interopRequireDefault(_getStoredState);
 	
-	var _persistStore = __webpack_require__(26);
+	var _persistStore = __webpack_require__(28);
 	
 	var _persistStore2 = _interopRequireDefault(_persistStore);
 	
-	var _purgeStoredState = __webpack_require__(22);
+	var _purgeStoredState = __webpack_require__(24);
 	
 	var _purgeStoredState2 = _interopRequireDefault(_purgeStoredState);
 	
@@ -915,7 +1047,7 @@
 	exports.storages = storages;
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, global, process) {'use strict';
@@ -1037,10 +1169,10 @@
 	    return hasSessionStorage() ? window.sessionStorage : { getItem: noStorage, setItem: noStorage, removeItem: noStorage, getAllKeys: noStorage };
 	  }
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).setImmediate, (function() { return this; }()), __webpack_require__(16)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16).setImmediate, (function() { return this; }()), __webpack_require__(18)))
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var apply = Function.prototype.apply;
@@ -1093,13 +1225,13 @@
 	};
 	
 	// setimmediate attaches itself to the global object
-	__webpack_require__(15);
+	__webpack_require__(17);
 	exports.setImmediate = setImmediate;
 	exports.clearImmediate = clearImmediate;
 
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -1289,16 +1421,16 @@
 	    attachTo.clearImmediate = clearImmediate;
 	}(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(16)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(18)))
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(3))(3);
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1313,9 +1445,9 @@
 	
 	exports.default = autoRehydrate;
 	
-	var _constants = __webpack_require__(18);
+	var _constants = __webpack_require__(20);
 	
-	var _isStatePlainEnough = __webpack_require__(19);
+	var _isStatePlainEnough = __webpack_require__(21);
 	
 	var _isStatePlainEnough2 = _interopRequireDefault(_isStatePlainEnough);
 	
@@ -1393,7 +1525,7 @@
 	}
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1405,7 +1537,7 @@
 	var REHYDRATE = exports.REHYDRATE = 'persist/REHYDRATE';
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1418,7 +1550,7 @@
 	
 	exports.default = isStatePlainEnough;
 	
-	var _isPlainObject = __webpack_require__(20);
+	var _isPlainObject = __webpack_require__(22);
 	
 	var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 	
@@ -1434,13 +1566,13 @@
 	}
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(3))(189);
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -1450,17 +1582,17 @@
 	});
 	exports.default = createPersistor;
 	
-	var _constants = __webpack_require__(18);
+	var _constants = __webpack_require__(20);
 	
-	var _asyncLocalStorage = __webpack_require__(13);
+	var _asyncLocalStorage = __webpack_require__(15);
 	
 	var _asyncLocalStorage2 = _interopRequireDefault(_asyncLocalStorage);
 	
-	var _purgeStoredState = __webpack_require__(22);
+	var _purgeStoredState = __webpack_require__(24);
 	
 	var _purgeStoredState2 = _interopRequireDefault(_purgeStoredState);
 	
-	var _jsonStringifySafe = __webpack_require__(23);
+	var _jsonStringifySafe = __webpack_require__(25);
 	
 	var _jsonStringifySafe2 = _interopRequireDefault(_jsonStringifySafe);
 	
@@ -1619,10 +1751,10 @@
 	  state[key] = value;
 	  return state;
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -1632,7 +1764,7 @@
 	});
 	exports.default = purgeStoredState;
 	
-	var _constants = __webpack_require__(18);
+	var _constants = __webpack_require__(20);
 	
 	function purgeStoredState(config, keys) {
 	  var storage = config.storage;
@@ -1673,10 +1805,10 @@
 	    }
 	  };
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports) {
 
 	exports = module.exports = stringify
@@ -1709,7 +1841,7 @@
 
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1742,7 +1874,7 @@
 	exports.default = createTransform;
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -1755,9 +1887,9 @@
 	
 	exports.default = getStoredState;
 	
-	var _constants = __webpack_require__(18);
+	var _constants = __webpack_require__(20);
 	
-	var _asyncLocalStorage = __webpack_require__(13);
+	var _asyncLocalStorage = __webpack_require__(15);
 	
 	var _asyncLocalStorage2 = _interopRequireDefault(_asyncLocalStorage);
 	
@@ -1842,10 +1974,10 @@
 	function defaultDeserialize(serial) {
 	  return JSON.parse(serial);
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(setImmediate, global, process) {'use strict';
@@ -1858,13 +1990,13 @@
 	
 	exports.default = persistStore;
 	
-	var _constants = __webpack_require__(18);
+	var _constants = __webpack_require__(20);
 	
-	var _getStoredState = __webpack_require__(25);
+	var _getStoredState = __webpack_require__(27);
 	
 	var _getStoredState2 = _interopRequireDefault(_getStoredState);
 	
-	var _createPersistor = __webpack_require__(21);
+	var _createPersistor = __webpack_require__(23);
 	
 	var _createPersistor2 = _interopRequireDefault(_createPersistor);
 	
@@ -1929,14 +2061,7 @@
 	    error: error
 	  };
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).setImmediate, (function() { return this; }()), __webpack_require__(16)))
-
-/***/ },
-/* 27 */,
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = (__webpack_require__(3))(225);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16).setImmediate, (function() { return this; }()), __webpack_require__(18)))
 
 /***/ },
 /* 29 */
@@ -1947,10 +2072,67 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.course = undefined;
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /***********************************************
+	                                                                                                                                                                                                                                                                   * MIT License
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   * Copyright (c) 2016 珠峰课堂,Ramroll
+	                                                                                                                                                                                                                                                                   * Permission is hereby granted, free of charge, to any person obtaining a copy
+	                                                                                                                                                                                                                                                                   * of this software and associated documentation files (the "Software"), to deal
+	                                                                                                                                                                                                                                                                   * in the Software without restriction, including without limitation the rights
+	                                                                                                                                                                                                                                                                   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	                                                                                                                                                                                                                                                                   * copies of the Software, and to permit persons to whom the Software is
+	                                                                                                                                                                                                                                                                   * furnished to do so, subject to the following conditions:
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   * The above copyright notice and this permission notice shall be included in all
+	                                                                                                                                                                                                                                                                   * copies or substantial portions of the Software.
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	                                                                                                                                                                                                                                                                   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	                                                                                                                                                                                                                                                                   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	                                                                                                                                                                                                                                                                   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	                                                                                                                                                                                                                                                                   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	                                                                                                                                                                                                                                                                   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	                                                                                                                                                                                                                                                                   * SOFTWARE.
+	                                                                                                                                                                                                                                                                   *
+	                                                                                                                                                                                                                                                                   */
+	
+	var _course = __webpack_require__(9);
+	
+	var initial = {
+	  course: null,
+	  topic: null,
+	  id: null,
+	  title: null
+	};
+	
+	var course = exports.course = function course() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initial;
+	  var action = arguments[1];
+	
+	  switch (action.type) {
+	    case _course.ACTION_SET_COURSE:
+	      return { course: action.course };
+	    case _course.ACTION_SWITCH_TO:
+	      return _extends({}, state, { topic: action.topic, id: action.id, title: action.title ? action.title : state.title });
+	  }
+	  return state;
+	};
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.socket_recorder = undefined;
 	exports.init_socket = init_socket;
 	
-	var _draw = __webpack_require__(30);
+	var _draw = __webpack_require__(11);
 	
 	var socket = null; /***********************************************
 	                    * 
@@ -2004,95 +2186,22 @@
 	};
 
 /***/ },
-/* 30 */
-/***/ function(module, exports) {
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/***********************************************
-	 *
-	 * MIT License
-	 *
-	 * Copyright (c) 2016 珠峰课堂,Ramroll
-	 * Permission is hereby granted, free of charge, to any person obtaining a copy
-	 * of this software and associated documentation files (the "Software"), to deal
-	 * in the Software without restriction, including without limitation the rights
-	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	 * copies of the Software, and to permit persons to whom the Software is
-	 * furnished to do so, subject to the following conditions:
-	 *
-	 * The above copyright notice and this permission notice shall be included in all
-	 * copies or substantial portions of the Software.
-	 *
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	 * SOFTWARE.
-	 *
-	 */
-	
-	var ACTION_DRAW = exports.ACTION_DRAW = "draw@Blackboard";
-	var ACTION_DRAW_SEGMENT = exports.ACTION_DRAW_SEGMENT = "draw_seg@Blackboard";
-	var ACTION_CLEAR = exports.ACTION_CLEAR = "clear@Blackboard";
-	
-	var draw = exports.draw = function draw(course, topic, id, x, y, color, penSize) {
-	  return {
-	    type: ACTION_DRAW,
-	    course: course,
-	    topic: topic,
-	    id: id,
-	    x: x,
-	    y: y,
-	    color: color,
-	    penSize: penSize
-	  };
-	};
-	
-	var draw_segment = exports.draw_segment = function draw_segment(course, topic, id) {
-	  return {
-	    type: ACTION_DRAW_SEGMENT,
-	    course: course,
-	    topic: topic,
-	    id: id
-	  };
-	};
-	
-	// export const set_color = (course, topic, id, color) => {
-	//   return {
-	//     type : ACTION_SET_COLOR,
-	//     course,
-	//     topic,
-	//     id,
-	//     color : color
-	//   }
-	// }
-	
-	var clear = exports.clear = function clear(course, topic, id) {
-	  return {
-	    course: course,
-	    topic: topic,
-	    id: id,
-	    type: ACTION_CLEAR
-	  };
-	};
+	module.exports = (__webpack_require__(3))(225);
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(32);
+	var content = __webpack_require__(33);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(35)(content, {});
+	var update = __webpack_require__(36)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -2109,21 +2218,21 @@
 	}
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(33)();
+	exports = module.exports = __webpack_require__(34)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(36) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -230px;\n  width: 240px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 100px);\n  font-size: 32px;\n  opacity: 0.5;\n  top: 20px;\n  width: 300px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(35) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -230px;\n  width: 240px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 100px);\n  font-size: 32px;\n  opacity: 0.5;\n  top: 20px;\n  width: 300px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	/*
@@ -2179,8 +2288,13 @@
 
 
 /***/ },
-/* 34 */,
 /* 35 */
+/***/ function(module, exports) {
+
+	module.exports = "data:image/png;base64,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"
+
+/***/ },
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -2430,122 +2544,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 36 */
-/***/ function(module, exports) {
-
-	module.exports = "data:image/png;base64,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"
-
-/***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.course = undefined;
-	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /***********************************************
-	                                                                                                                                                                                                                                                                   * MIT License
-	                                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                                   * Copyright (c) 2016 珠峰课堂,Ramroll
-	                                                                                                                                                                                                                                                                   * Permission is hereby granted, free of charge, to any person obtaining a copy
-	                                                                                                                                                                                                                                                                   * of this software and associated documentation files (the "Software"), to deal
-	                                                                                                                                                                                                                                                                   * in the Software without restriction, including without limitation the rights
-	                                                                                                                                                                                                                                                                   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	                                                                                                                                                                                                                                                                   * copies of the Software, and to permit persons to whom the Software is
-	                                                                                                                                                                                                                                                                   * furnished to do so, subject to the following conditions:
-	                                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                                   * The above copyright notice and this permission notice shall be included in all
-	                                                                                                                                                                                                                                                                   * copies or substantial portions of the Software.
-	                                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                                   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	                                                                                                                                                                                                                                                                   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	                                                                                                                                                                                                                                                                   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	                                                                                                                                                                                                                                                                   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	                                                                                                                                                                                                                                                                   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	                                                                                                                                                                                                                                                                   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	                                                                                                                                                                                                                                                                   * SOFTWARE.
-	                                                                                                                                                                                                                                                                   *
-	                                                                                                                                                                                                                                                                   */
-	
-	var _course = __webpack_require__(38);
-	
-	var initial = {
-	  course: null,
-	  topic: null,
-	  id: null,
-	  title: null
-	};
-	
-	var course = exports.course = function course() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initial;
-	  var action = arguments[1];
-	
-	  switch (action.type) {
-	    case _course.ACTION_SET_COURSE:
-	      return { course: action.course };
-	    case _course.ACTION_SWITCH_TO:
-	      return _extends({}, state, { topic: action.topic, id: action.id, title: action.title ? action.title : state.title });
-	  }
-	  return state;
-	};
-
-/***/ },
-/* 38 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/***********************************************
-	 * 
-	 * MIT License
-	 *
-	 * Copyright (c) 2016 珠峰课堂,Ramroll
-	 * Permission is hereby granted, free of charge, to any person obtaining a copy
-	 * of this software and associated documentation files (the "Software"), to deal
-	 * in the Software without restriction, including without limitation the rights
-	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	 * copies of the Software, and to permit persons to whom the Software is
-	 * furnished to do so, subject to the following conditions:
-	 *
-	 * The above copyright notice and this permission notice shall be included in all
-	 * copies or substantial portions of the Software.
-	 *
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	 * SOFTWARE.
-	 *
-	 */
-	
-	var ACTION_SET_COURSE = exports.ACTION_SET_COURSE = "set_course@Blackboard";
-	var ACTION_SWITCH_TO = exports.ACTION_SWITCH_TO = "switch_to@Blackboard";
-	
-	var set_course = exports.set_course = function set_course(course) {
-	  return {
-	    type: ACTION_SET_COURSE,
-	    course: course
-	  };
-	};
-	
-	var switch_to = exports.switch_to = function switch_to(topic, id, title) {
-	  return {
-	    type: ACTION_SWITCH_TO,
-	    topic: topic,
-	    id: id,
-	    title: title
-	  };
-	};
 
 /***/ }
 /******/ ]);
