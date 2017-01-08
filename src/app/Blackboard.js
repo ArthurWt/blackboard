@@ -301,7 +301,7 @@ class _Blackboard extends Component{
       <div className="title">{course.title}</div>
       <div id="pages" className="pages">
         {
-          [1, 2, 3, 4, 5].map(x => {
+          [1, 2, 3, 4, 5, 6, 7, 8, 9].map(x => {
             return <div key={x} onClick={() => this._switch(x)} style={{backgroundColor : x === course.id ? "#31d22e" : "#f2f3f4"}} className="page">{x}</div>
           })
         }

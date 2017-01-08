@@ -33,7 +33,7 @@ export const set_course = (course) => {
   }  
 }
 
-export const switch_to = (topic, id, title) => {
+export const switch_to = (topic, id, title ) => {
   return {
     type : ACTION_SWITCH_TO,
     topic,

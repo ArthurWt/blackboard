@@ -39,6 +39,9 @@ import "./stylus/main.styl"
 
 import {set_course, switch_to} from "./redux/actions/course"
 
+import {Fiddle} from "./Fiddle"
+import {connect} from 'react-redux'
+
 function loading_content(name) {
   function loading() {
     const url = `/courses/${name}.content`
@@ -59,17 +62,23 @@ function format_menu(data){
 
   let lines = data.split("\n").map(l => l.trim())
   lines = lines.filter(l => l.length > 1)
-
   lines = lines.map(l => l.split(/[\t ]/).map(x=>x.trim()))
     .map(([f, ...others]) => {
-      return [f, others.filter(k => k.length > 0).join(" ")]
+      const join = others.filter(k => k.length > 0).join(" ")
+      return [f, join]
     })
-  console.log(lines)
+  
   lines = lines.map(([n, title]) => {
+    let type = "blackboard"
+    if(title.match(/code/)) {
+      title.replace("code", "")  
+      type = 'code'
+    }
     return {
       level : n.replace(".", "").length,
       topic : n,
-      title
+      title,
+      type
     }
   })
   
@@ -77,6 +86,8 @@ function format_menu(data){
   return lines
 
 }
+
+
 
 
 export class Main extends React.Component{
@@ -103,20 +114,51 @@ export class Main extends React.Component{
     })
   }
   
+ 
+  
   render(){
     const {content, store} = this.state
-    
     if(!content) {
       return null
     }
+    
+    const course = store.getState().course
     return <Provider store={store}>
       <div>
         <Menu content={content} course={this.query.course} />
-        <Blackboard />
+       
+        <App content={content}/>
       </div>
     </Provider>
   }
 }
+
+
+class _App extends Component{
+   
+  renderPanel(course){
+    const item = this.props.content.find(x => x.topic === course.topic)
+    if(item.type === 'blackboard'){
+      return <Blackboard />
+    }
+    else if(item.type === "code") {
+      return <Fiddle />
+    }
+  }
+  render(){
+    return <div>
+      {this.renderPanel(this.props.course)}
+    </div>
+  }  
+}
+
+const map = state => {
+  return {
+    course : state.course
+  }
+  
+}
+let App = connect(map)(_App)
 
 
 

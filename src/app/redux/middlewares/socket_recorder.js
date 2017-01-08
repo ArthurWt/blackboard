@@ -25,11 +25,11 @@
 
 import {ACTION_DRAW, ACTION_SET_COLOR, ACTION_CLEAR, ACTION_DRAW_SEGMENT} from "redux/actions/draw"
 
-
+import {ACTION_SAVE, ACTION_COMPILE} from "redux/actions/code"
 
 let socket = null
 export function init_socket() {
-  socket = io("ws://localhost:3006")
+  window.socket = socket = io("ws://localhost:3006")
 
 }
 export const socket_recorder = store => next => action => {
@@ -46,6 +46,15 @@ export const socket_recorder = store => next => action => {
     case ACTION_DRAW_SEGMENT: 
       socket.emit("draw", action)
       break
+    case ACTION_SAVE:
+      socket.emit("save", action)
+
+      break
+
+    case ACTION_COMPILE:
+      socket.emit("compile", action)
+      break
+
   }
   
   return next(action)

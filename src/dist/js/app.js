@@ -92,6 +92,8 @@
 	
 	var _course = __webpack_require__(9);
 	
+	var _Fiddle = __webpack_require__(37);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -146,7 +148,6 @@
 	  lines = lines.filter(function (l) {
 	    return l.length > 1;
 	  });
-	
 	  lines = lines.map(function (l) {
 	    return l.split(/[\t ]/).map(function (x) {
 	      return x.trim();
@@ -156,20 +157,27 @@
 	        f = _ref2[0],
 	        others = _ref2.slice(1);
 	
-	    return [f, others.filter(function (k) {
+	    var join = others.filter(function (k) {
 	      return k.length > 0;
-	    }).join(" ")];
+	    }).join(" ");
+	    return [f, join];
 	  });
-	  console.log(lines);
+	
 	  lines = lines.map(function (_ref3) {
 	    var _ref4 = _slicedToArray(_ref3, 2),
 	        n = _ref4[0],
 	        title = _ref4[1];
 	
+	    var type = "blackboard";
+	    if (title.match(/code/)) {
+	      title.replace("code", "");
+	      type = 'code';
+	    }
 	    return {
 	      level: n.replace(".", "").length,
 	      topic: n,
-	      title: title
+	      title: title,
+	      type: type
 	    };
 	  });
 	
@@ -217,10 +225,11 @@
 	          content = _state.content,
 	          store = _state.store;
 	
-	
 	      if (!content) {
 	        return null;
 	      }
+	
+	      var course = store.getState().course;
 	      return _react2.default.createElement(
 	        _reactRedux.Provider,
 	        { store: store },
@@ -228,7 +237,7 @@
 	          'div',
 	          null,
 	          _react2.default.createElement(_menu.Menu, { content: content, course: this.query.course }),
-	          _react2.default.createElement(_Blackboard.Blackboard, null)
+	          _react2.default.createElement(App, { content: content })
 	        )
 	      );
 	    }
@@ -236,6 +245,48 @@
 	
 	  return Main;
 	}(_react2.default.Component);
+	
+	var _App = function (_Component) {
+	  _inherits(_App, _Component);
+	
+	  function _App() {
+	    _classCallCheck(this, _App);
+	
+	    return _possibleConstructorReturn(this, (_App.__proto__ || Object.getPrototypeOf(_App)).apply(this, arguments));
+	  }
+	
+	  _createClass(_App, [{
+	    key: 'renderPanel',
+	    value: function renderPanel(course) {
+	      var item = this.props.content.find(function (x) {
+	        return x.topic === course.topic;
+	      });
+	      if (item.type === 'blackboard') {
+	        return _react2.default.createElement(_Blackboard.Blackboard, null);
+	      } else if (item.type === "code") {
+	        return _react2.default.createElement(_Fiddle.Fiddle, null);
+	      }
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        this.renderPanel(this.props.course)
+	      );
+	    }
+	  }]);
+	
+	  return _App;
+	}(_react.Component);
+	
+	var map = function map(state) {
+	  return {
+	    course: state.course
+	  };
+	};
+	var App = (0, _reactRedux.connect)(map)(_App);
 	
 	_reactDom2.default.render(_react2.default.createElement(Main, null), document.getElementById("app"));
 
@@ -776,7 +827,7 @@
 	        _react2.default.createElement(
 	          'div',
 	          { id: 'pages', className: 'pages' },
-	          [1, 2, 3, 4, 5].map(function (x) {
+	          [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (x) {
 	            return _react2.default.createElement(
 	              'div',
 	              { key: x, onClick: function onClick() {
@@ -2134,33 +2185,36 @@
 	
 	var _draw = __webpack_require__(11);
 	
-	var socket = null; /***********************************************
-	                    * 
-	                    * MIT License
-	                    *
-	                    * Copyright (c) 2016 珠峰课堂,Ramroll
-	                    * Permission is hereby granted, free of charge, to any person obtaining a copy
-	                    * of this software and associated documentation files (the "Software"), to deal
-	                    * in the Software without restriction, including without limitation the rights
-	                    * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	                    * copies of the Software, and to permit persons to whom the Software is
-	                    * furnished to do so, subject to the following conditions:
-	                    *
-	                    * The above copyright notice and this permission notice shall be included in all
-	                    * copies or substantial portions of the Software.
-	                    *
-	                    * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	                    * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	                    * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	                    * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	                    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	                    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	                    * SOFTWARE.
-	                    *
-	                    */
+	var _code = __webpack_require__(38);
 	
+	/***********************************************
+	 * 
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var socket = null;
 	function init_socket() {
-	  socket = io("ws://localhost:3006");
+	  window.socket = socket = io("ws://localhost:3006");
 	}
 	var socket_recorder = exports.socket_recorder = function socket_recorder(store) {
 	  return function (next) {
@@ -2178,6 +2232,15 @@
 	        case _draw.ACTION_DRAW_SEGMENT:
 	          socket.emit("draw", action);
 	          break;
+	        case _code.ACTION_SAVE:
+	          socket.emit("save", action);
+	
+	          break;
+	
+	        case _code.ACTION_COMPILE:
+	          socket.emit("compile", action);
+	          break;
+	
 	      }
 	
 	      return next(action);
@@ -2226,7 +2289,7 @@
 	
 	
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(35) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -230px;\n  width: 240px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: absolute;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 100px);\n  font-size: 32px;\n  opacity: 0.5;\n  top: 20px;\n  width: 300px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(35) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 100px);\n  font-size: 32px;\n  opacity: 0.5;\n  top: 20px;\n  width: 300px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.editor {\n  border: 1px solid #eee;\n  margin: 40px;\n  font-size: 28px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  min-height: 800px;\n  margin-top: 60px;\n}\n.options {\n  position: absolute;\n  top: 30px;\n  left: 40px;\n}\n.options .option {\n  float: left;\n  margin-right: 10px;\n  border: 2px solid #0f0;\n  padding: 3px 10px;\n}\n.options .option:hover {\n  background-color: #ffa;\n}\n.frame {\n  width: 20%;\n  float: left;\n  margin-top: 60px;\n  height: 100%;\n  border: 1px solid #eee;\n}\n.CodeMirror {\n  height: 800px;\n}\n", ""]);
 	
 	// exports
 
@@ -2544,6 +2607,337 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Fiddle = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(2);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactRedux = __webpack_require__(5);
+	
+	var _course = __webpack_require__(9);
+	
+	var _code = __webpack_require__(38);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /***********************************************
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * MIT License
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright (c) 2016 珠峰课堂,Ramroll
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Permission is hereby granted, free of charge, to any person obtaining a copy
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * of this software and associated documentation files (the "Software"), to deal
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * in the Software without restriction, including without limitation the rights
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * copies of the Software, and to permit persons to whom the Software is
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * furnished to do so, subject to the following conditions:
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * The above copyright notice and this permission notice shall be included in all
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * copies or substantial portions of the Software.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * SOFTWARE.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	var getDimensions = function getDimensions() {
+	
+	  var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	
+	  var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	  return {
+	    width: width,
+	    height: height
+	  };
+	};
+	
+	function loading_data(_ref) {
+	  var course = _ref.course,
+	      topic = _ref.topic,
+	      id = _ref.id;
+	
+	  function loading() {
+	    var url = '/courses/' + course + '/' + topic + '/' + id + '.js';
+	
+	    return new Promise(function (resolve, reject) {
+	      $.get(url, function (data) {
+	        resolve(data);
+	      }).catch(function (err) {
+	        resolve(null);
+	      });
+	    });
+	  }
+	  return loading();
+	}
+	
+	var _Fiddle = function (_Component) {
+	  _inherits(_Fiddle, _Component);
+	
+	  function _Fiddle() {
+	    _classCallCheck(this, _Fiddle);
+	
+	    var _this = _possibleConstructorReturn(this, (_Fiddle.__proto__ || Object.getPrototypeOf(_Fiddle)).call(this));
+	
+	    _this.state = {
+	      content: null
+	    };
+	    return _this;
+	  }
+	
+	  _createClass(_Fiddle, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      socket.on("compile-error", function (msg) {
+	        console.error(msg);
+	      });
+	      var _s = this;
+	      socket.on("compile-succ", function (msg) {
+	
+	        _s.refs.frame.reload();
+	      });
+	    }
+	  }, {
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	
+	      this.reloading(this.props.course);
+	    }
+	  }, {
+	    key: 'reloading',
+	    value: function reloading(course) {
+	      var _s = this;
+	      loading_data(course).then(function (data) {
+	        _s.setState({
+	          content: data || ""
+	        }, function () {
+	          _s.refs.editor.reload();
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      var _this2 = this;
+	
+	      if (nextProps.course.course !== this.props.course.course || nextProps.course.topic !== this.props.course.topic || nextProps.course.id !== this.props.course.id) {
+	        setTimeout(function () {
+	          _this2.reloading(nextProps.course);
+	        }.bind(this), 20);
+	      }
+	    }
+	  }, {
+	    key: '_compile',
+	    value: function _compile() {
+	      var course = this.props.course;
+	      store.dispatch((0, _code.compile)(course.course, course.topic, course.id));
+	    }
+	  }, {
+	    key: '_save',
+	    value: function _save() {
+	
+	      this.refs.editor.saveCtx();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      if (this.state.content === null) {
+	        return null;
+	      }
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'title' },
+	          this.props.course.title
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'options' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'option', onClick: this._compile.bind(this) },
+	            'RUN'
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'option', onClick: this._save.bind(this) },
+	            'SAVE'
+	          )
+	        ),
+	        _react2.default.createElement(CodeEditor, { course: this.props.course, initialContent: this.state.content, ref: 'editor' }),
+	        _react2.default.createElement(Frame, { course: this.props.course, ref: 'frame' })
+	      );
+	    }
+	  }]);
+	
+	  return _Fiddle;
+	}(_react.Component);
+	
+	var Frame = function (_Component2) {
+	  _inherits(Frame, _Component2);
+	
+	  function Frame() {
+	    _classCallCheck(this, Frame);
+	
+	    return _possibleConstructorReturn(this, (Frame.__proto__ || Object.getPrototypeOf(Frame)).apply(this, arguments));
+	  }
+	
+	  _createClass(Frame, [{
+	    key: 'reload',
+	    value: function reload() {
+	      this.refs.frame.contentWindow.location.reload();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	
+	      var course = this.props.course;
+	      var src = "/app?file=" + course.course + "_" + course.topic + "_" + course.id;
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'frame' },
+	        _react2.default.createElement('iframe', { frameBorder: '0', src: src, ref: 'frame' })
+	      );
+	    }
+	  }]);
+	
+	  return Frame;
+	}(_react.Component);
+	
+	var CodeEditor = function (_Component3) {
+	  _inherits(CodeEditor, _Component3);
+	
+	  function CodeEditor() {
+	    _classCallCheck(this, CodeEditor);
+	
+	    return _possibleConstructorReturn(this, (CodeEditor.__proto__ || Object.getPrototypeOf(CodeEditor)).apply(this, arguments));
+	  }
+	
+	  _createClass(CodeEditor, [{
+	    key: 'reload',
+	    value: function reload() {
+	      this.doc.setValue(this.props.initialContent);
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.doc = CodeMirror(this.refs.editor, {
+	        value: this.props.initialContent,
+	        mode: "javascript",
+	        cursorHeight: 1
+	      });
+	
+	      // this.I = setInterval( this._saveCtx.bind(this), 1000)
+	    }
+	  }, {
+	    key: 'compomentWillUnmount',
+	    value: function compomentWillUnmount() {
+	      clearInterval(this.I);
+	    }
+	  }, {
+	    key: 'saveCtx',
+	    value: function saveCtx() {
+	
+	      var value = this.doc.getValue();
+	      var course = this.props.course;
+	      store.dispatch((0, _code.save)(course.course, course.topic, course.id, value));
+	
+	      console.log(value);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement('div', { ref: 'editor', className: 'editor' });
+	    }
+	  }]);
+	
+	  return CodeEditor;
+	}(_react.Component);
+	
+	var map = function map(state) {
+	  return {
+	    course: state.course
+	  };
+	};
+	var Fiddle = exports.Fiddle = (0, _reactRedux.connect)(map)(_Fiddle);
+
+/***/ },
+/* 38 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/***********************************************
+	 *
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var ACTION_SAVE = exports.ACTION_SAVE = "save@Fiddle";
+	var ACTION_COMPILE = exports.ACTION_COMPILE = "compile@Fiddle";
+	
+	var save = exports.save = function save(course, topic, id, content) {
+	  return {
+	    type: ACTION_SAVE,
+	    course: course,
+	    topic: topic,
+	    id: id,
+	    content: content
+	  };
+	};
+	
+	var compile = exports.compile = function compile(course, topic, id) {
+	  return {
+	    type: ACTION_COMPILE,
+	    course: course,
+	    topic: topic,
+	    id: id
+	  };
+	};
 
 /***/ }
 /******/ ]);
