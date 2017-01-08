@@ -70,8 +70,8 @@ function format_menu(data){
   
   lines = lines.map(([n, title]) => {
     let type = "blackboard"
-    if(title.match(/code/)) {
-      title.replace("code", "")  
+    if(title.match(/\[code\]/)) {
+      title = title.replace("[code]", "")  
       type = 'code'
     }
     return {

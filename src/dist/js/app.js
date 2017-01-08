@@ -88,11 +88,11 @@
 	
 	var _socket_recorder = __webpack_require__(30);
 	
-	__webpack_require__(32);
+	__webpack_require__(33);
 	
 	var _course = __webpack_require__(9);
 	
-	var _Fiddle = __webpack_require__(37);
+	var _Fiddle = __webpack_require__(38);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -169,8 +169,8 @@
 	        title = _ref4[1];
 	
 	    var type = "blackboard";
-	    if (title.match(/code/)) {
-	      title.replace("code", "");
+	    if (title.match(/\[code\]/)) {
+	      title = title.replace("[code]", "");
 	      type = 'code';
 	    }
 	    return {
@@ -979,7 +979,7 @@
 	
 	var _socket_recorder = __webpack_require__(30);
 	
-	var _reduxThunk = __webpack_require__(31);
+	var _reduxThunk = __webpack_require__(32);
 	
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 	
@@ -2185,7 +2185,7 @@
 	
 	var _draw = __webpack_require__(11);
 	
-	var _code = __webpack_require__(38);
+	var _code = __webpack_require__(31);
 	
 	/***********************************************
 	 * 
@@ -2250,21 +2250,77 @@
 
 /***/ },
 /* 31 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	module.exports = (__webpack_require__(3))(225);
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/***********************************************
+	 *
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var ACTION_SAVE = exports.ACTION_SAVE = "save@Fiddle";
+	var ACTION_COMPILE = exports.ACTION_COMPILE = "compile@Fiddle";
+	
+	var save = exports.save = function save(course, topic, id, content) {
+	  return {
+	    type: ACTION_SAVE,
+	    course: course,
+	    topic: topic,
+	    id: id,
+	    content: content
+	  };
+	};
+	
+	var compile = exports.compile = function compile(course, topic, id) {
+	  return {
+	    type: ACTION_COMPILE,
+	    course: course,
+	    topic: topic,
+	    id: id
+	  };
+	};
 
 /***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = (__webpack_require__(3))(225);
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(33);
+	var content = __webpack_require__(34);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(36)(content, {});
+	var update = __webpack_require__(37)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -2281,21 +2337,21 @@
 	}
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(34)();
+	exports = module.exports = __webpack_require__(35)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(35) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 100px);\n  font-size: 32px;\n  opacity: 0.5;\n  top: 20px;\n  width: 300px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.editor {\n  border: 1px solid #eee;\n  margin: 40px;\n  font-size: 28px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  min-height: 800px;\n  margin-top: 60px;\n}\n.options {\n  position: absolute;\n  top: 30px;\n  left: 40px;\n}\n.options .option {\n  float: left;\n  margin-right: 10px;\n  border: 2px solid #0f0;\n  padding: 3px 10px;\n}\n.options .option:hover {\n  background-color: #ffa;\n}\n.frame {\n  width: 20%;\n  float: left;\n  margin-top: 60px;\n  height: 100%;\n  border: 1px solid #eee;\n}\n.CodeMirror {\n  height: 800px;\n}\n", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  cursor: url(" + __webpack_require__(36) + "), auto;\n  margin: 0;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n}\n.color {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 250px);\n  font-size: 28px;\n  opacity: 0.5;\n  top: 20px;\n  width: 500px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.editor {\n  border: 1px solid #eee;\n  margin: 40px;\n  font-size: 20px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  min-height: 800px;\n  margin-top: 60px;\n}\n.options {\n  position: absolute;\n  top: 30px;\n  left: 40px;\n}\n.options .option {\n  float: left;\n  margin-right: 10px;\n  border: 2px solid #0f0;\n  padding: 3px 10px;\n}\n.options .option:hover {\n  background-color: #ffa;\n}\n.frame {\n  width: 20%;\n  float: left;\n  margin-top: 60px;\n  height: 100%;\n  border: 1px solid #eee;\n}\n.CodeMirror {\n  height: 800px;\n}\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports) {
 
 	/*
@@ -2351,13 +2407,13 @@
 
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports) {
 
 	module.exports = "data:image/png;base64,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"
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -2609,7 +2665,7 @@
 
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2629,7 +2685,7 @@
 	
 	var _course = __webpack_require__(9);
 	
-	var _code = __webpack_require__(38);
+	var _code = __webpack_require__(31);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2714,7 +2770,7 @@
 	      var _s = this;
 	      socket.on("compile-succ", function (msg) {
 	
-	        _s.refs.frame.reload();
+	        if (_s.refs.frame) _s.refs.frame.reload();
 	      });
 	    }
 	  }, {
@@ -2882,62 +2938,6 @@
 	  };
 	};
 	var Fiddle = exports.Fiddle = (0, _reactRedux.connect)(map)(_Fiddle);
-
-/***/ },
-/* 38 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/***********************************************
-	 *
-	 * MIT License
-	 *
-	 * Copyright (c) 2016 珠峰课堂,Ramroll
-	 * Permission is hereby granted, free of charge, to any person obtaining a copy
-	 * of this software and associated documentation files (the "Software"), to deal
-	 * in the Software without restriction, including without limitation the rights
-	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	 * copies of the Software, and to permit persons to whom the Software is
-	 * furnished to do so, subject to the following conditions:
-	 *
-	 * The above copyright notice and this permission notice shall be included in all
-	 * copies or substantial portions of the Software.
-	 *
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	 * SOFTWARE.
-	 *
-	 */
-	
-	var ACTION_SAVE = exports.ACTION_SAVE = "save@Fiddle";
-	var ACTION_COMPILE = exports.ACTION_COMPILE = "compile@Fiddle";
-	
-	var save = exports.save = function save(course, topic, id, content) {
-	  return {
-	    type: ACTION_SAVE,
-	    course: course,
-	    topic: topic,
-	    id: id,
-	    content: content
-	  };
-	};
-	
-	var compile = exports.compile = function compile(course, topic, id) {
-	  return {
-	    type: ACTION_COMPILE,
-	    course: course,
-	    topic: topic,
-	    id: id
-	  };
-	};
 
 /***/ }
 /******/ ]);

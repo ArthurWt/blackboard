@@ -80,7 +80,8 @@ class _Fiddle extends Component{
     const _s = this
     socket.on("compile-succ", function(msg){
       
-      _s.refs.frame.reload()
+      if(_s.refs.frame)
+        _s.refs.frame.reload()
       
       
     })
