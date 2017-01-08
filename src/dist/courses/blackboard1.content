@@ -1,10 +1,10 @@
 1  Blackboard App介绍
 2  前置概念讲解
 2.1  人机交互和Cycle
-2.1.1 100行裸写的reduxtiny-redux示例 [code]
 2.2  事件和store
+2.2.1 示例:100行裸写的reduxtiny-redux示例 [code]
 2.3  什么是connector
-2.3.1 示例1 [code]
+2.3.1 示例1 第一个redux例子 [code]
 2.3.2 示例2 [code]
 2.3.3 示例3 [code]
 2.4  Redux整体架构和基本用法
