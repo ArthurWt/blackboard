@@ -4,7 +4,7 @@ var path    = require('path')
 
 module.exports = {
   devtool :"#source-map",
-  entry: ['./app/main.js'],
+  entry: ['babel-polyfill', './app/main.js'],
 
   output: {
     path: __dirname + "/dist",

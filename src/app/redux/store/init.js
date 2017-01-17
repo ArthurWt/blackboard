@@ -39,6 +39,7 @@ import {course} from "redux/reducers/course"
 /** 引入 middleware **/
 
 import {socket_recorder} from 'redux/middlewares/socket_recorder'
+import {browser_hash} from "redux/middlewares/browser_hash"
 import thunk from 'redux-thunk'
 
 /**
@@ -55,7 +56,7 @@ export const init = () => {
   const reducer = combineReducers(reducers);
   // 创建Store
   // 这里是将所有的redux enhancer组合起来
-  const store = applyMiddleware(thunk, socket_recorder)(createStore)(reducer)
+  const store = applyMiddleware(thunk, socket_recorder, browser_hash)(createStore)(reducer)
   
   window.store = store
   return store

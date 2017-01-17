@@ -30,40 +30,16 @@ import {connect} from 'react-redux'
 
 import {switch_to} from "./redux/actions/course"
 import {draw, clear, draw_segment} from "./redux/actions/draw"
-const getDimensions = () => {
-
-  const width = window.innerWidth
-    || document.documentElement.clientWidth
-    || document.body.clientWidth
-
-  const height = window.innerHeight
-    || document.documentElement.clientHeight
-    || document.body.clientHeight
-  return {
-    width,
-    height
-  }
 
 
-}
+import {getDimensions} from 'util/dimensions'
 
-function loading_data({course, topic, id}) {
-  function loading() {
-    const url = `/courses/${course}/${topic}/${id}.log`
+import {loading_data} from 'data/apis'
 
-    return new Promise((resolve, reject) => {
-      $.get(url, data => {
-          resolve(data)
-        })
-        .catch(err => {
-          resolve(null)
-        })
-    })
+import {Dropbox} from "Dropbox"
+import {Markdown} from "Markdown"
+import {Fiddle} from "Fiddle"
 
-  }
-  return loading()
-
-}
 class _Blackboard extends Component{
 
   constructor(props){
@@ -93,7 +69,7 @@ class _Blackboard extends Component{
     this._keydown = this._keydown.bind(this)
 
 
-    document.addEventListener("keydown",this._keydown) 
+    document.addEventListener("keydown",this._keydown)
 
   }
 
@@ -130,7 +106,9 @@ class _Blackboard extends Component{
 
   componentWillUnmount(){
 
-    document.removeEventListener("keydown",this._keydown) 
+
+    clearInterval(this.I)
+    document.removeEventListener("keydown",this._keydown)
   }
 
   _keydown() {
@@ -151,7 +129,7 @@ class _Blackboard extends Component{
       if(ndx > this.state.colors.length - 1 ) {
         ndx = 0
       }
-      
+
       this._pick(this.state.colors[ndx])
       // this.setState({color : this.state.colors[ndx]})
     } else {
@@ -164,9 +142,27 @@ class _Blackboard extends Component{
 
   componentDidMount(){
 
-
-
+    this.I = setInterval(this.saveWidgets.bind(this), 1000)
     this._reloading()
+  }
+
+  saveWidgets(){
+    const topic = this.props.course.topic
+    const id = this.props.course.id
+    if(this.state.loading) {
+      return
+    }
+    if(this.props.course.widgets[topic]) {
+
+      store.dispatch({
+        type: "SAVE_WIDGET",
+        course: this.props.course.course,
+        topic: this.props.course.topic,
+        id: this.props.course.id
+        // widgets: this.props.course.widgets[topic][id]
+      })
+    }
+    
   }
 
   componentWillReceiveProps(nextProps){
@@ -190,15 +186,28 @@ class _Blackboard extends Component{
 
   _reloading() {
     loading_data (this.props.course)
-      .then( (data => {
-        this.redraw_data = data
+      .then( (({draw, widgets}) => {
+          setTimeout( () => {
+            widgets.map(widget => {
+              store.dispatch({
+                type : "ADD_WIDGET",
+                widget,
+                topic : this.props.course.topic,
+                id : this.props.course.id
+              })
+            })
+          }, 0)
 
-        this.setState({
-          loading : false
-        }, this._loaded.bind(this))
 
-      }).bind(this))
 
+          this.redraw_data = draw
+          this.setState({
+            loading : false,
+          }, this._loaded.bind(this))
+
+
+        }).bind(this)
+      )
   }
   _mouseDown(){
 
@@ -279,6 +288,8 @@ class _Blackboard extends Component{
     }
     this.ctx.clearRect(0, 0, getDimensions().width * 2, getDimensions().height * 2)
   }
+  
+  
 
   _switch(id) {
     this._clear(false)
@@ -286,23 +297,62 @@ class _Blackboard extends Component{
 
   }
 
+  _renderWidgets(){
+
+
+    const topic = this.props.course.topic
+    const id = this.props.course.id
+    if(!this.props.course.widgets[topic]){
+      return null
+    }
+    
+    const widgets = this.props.course.widgets[topic][id]
+    if(!widgets){
+      return null
+      
+    }
+    
+    return widgets.map(widget => {
+      
+      switch(widget.type) {
+        case "markdown":
+          return <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+            <Markdown course={this.props.course} widget={widget} />
+          </Dropbox>
+        case "code":
+          return <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+            <Fiddle course={this.props.course} widget={widget} />
+          </Dropbox>
+
+        
+      }  
+    })
+    console.log("@Blckboard _renderWidgets()")
+    console.log(widgets)
+
+  }
+
 
   render(){
     const { colors, color, x, y, loading } = this.state
+    // console.log("@Blackboard render")
 
     if(loading) { return null}
     const {course} = this.props
+
     return <div
       onMouseMove={this._mouseMove.bind(this)}
       onMouseUp={this._mouseUp.bind(this)}
       onMouseDown={this._mouseDown.bind(this)}
     >
 
+      {this._renderWidgets()}
+
       <div className="title">{course.title}</div>
       <div id="pages" className="pages">
         {
           [1, 2, 3, 4, 5, 6, 7, 8, 9].map(x => {
-            return <div key={x} onClick={() => this._switch(x)} style={{backgroundColor : x === course.id ? "#31d22e" : "#f2f3f4"}} className="page">{x}</div>
+            return <div key={x} onClick={() => this._switch(x)} style={{backgroundColor : x ==course.id ? "#31d22e" : "#f2f3f4"}} className="page">{x}</div>
           })
         }
 

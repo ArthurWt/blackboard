@@ -23,20 +23,89 @@
  */
 
 import {ACTION_SWITCH_TO, ACTION_SET_COURSE} from "../actions/course"
+
+
+
+const url = new URL(window.location.href)
+
+const query = qs.parse(url.query.replace("?", "")) || {}
+import URL from 'url-parse'
+import qs from 'qs'
+
 const initial = {
-  course : null,
-  topic : null,
-  id : null,
-  title : null
+  course : query.course || "demo",
+  topic : query.topic,
+  id : query.id,
+  title : null,
+  widgets : {}
 }
 
+
+
+
+const add_widget = (state, topic, id, widget) => {
+
+  const newState = {...state}
+
+  if(!newState['widgets'][topic]){
+    newState['widgets'][topic] = {}
+    if(!newState['widgets'][topic][id]) {
+      newState['widgets'][topic][id] = []
+    }
+  }
+  if(!widget.id) {
+    widget.id = newState['widgets'][topic][id].length === 0 ? 1 :
+      (newState['widgets'][topic][id][newState['widgets'][topic][id].length - 1].id + 1)
+  }
+  newState['widgets'][topic][id].push(widget)
+  // console.log("@add_widget new State")
+  // console.log(newState)
+  return newState
+  
+}
+
+
+
+const change_widget = (state, topic, id, {id : widget_id}, x, y, w, h) => {
+
+  const newState = {...state}
+
+  const widgets = newState['widgets'][topic][id]
+  
+  const widget = widgets.find(x => x.id === widget_id)
+  widget.x = x
+  widget.y = y
+  widget.w = w
+  widget.h = h
+  
+  // console.log("@add_widget new State")
+  // console.log(newState)
+  return newState
+}
+const delete_widget = (state, topic, id, widget) => {
+  const newState = {...state}
+  let widgets = newState['widgets'][topic][id]
+  widgets = widgets.filter(x => x.id !== widget.id)
+  newState['widgets'][topic][id] = widgets
+  return newState
+  
+}
 
 export const course = (state = initial, action) => {
   switch(action.type) {
     case ACTION_SET_COURSE : 
-      return {course: action.course}
+      return {...state, course: action.course}
     case ACTION_SWITCH_TO : 
       return {...state, topic : action.topic, id : action.id, title : action.title ? action.title : state.title}
+    case "ADD_WIDGET" : 
+      return add_widget(state, action.topic, action.id, action.widget)
+    case "CHANGE_WIDGET" :
+      return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h)
+    
+    case "DELETE_WIDGET" :
+
+      return delete_widget(state, action.topic, action.id, action.widget)
   }
   return state
 }
+

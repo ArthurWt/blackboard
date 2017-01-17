@@ -54,6 +54,16 @@ export const socket_recorder = store => next => action => {
     case ACTION_COMPILE:
       socket.emit("compile", action)
       break
+    case "SAVE_WIDGET" :
+      const {topic, id} = action
+      socket.emit("save-widget", {...action, widgets : store.getState().course.widgets[topic][id]})
+      break
+    case "SAVE_MARKDOWN" :
+      socket.emit("save-markdown", action)
+      break
+    case "DELETE_WIDGET":
+      socket.emit("delete-widget", action)
+      break
 
   }
   

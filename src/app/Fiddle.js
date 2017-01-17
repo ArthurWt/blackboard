@@ -25,31 +25,18 @@
 
 import React, {Component} from 'react'
 
+
 import {connect} from 'react-redux'
 
 
 import {switch_to} from "./redux/actions/course"
 import {save, compile} from "./redux/actions/code"
-const getDimensions = () => {
 
-  const width = window.innerWidth
-    || document.documentElement.clientWidth
-    || document.body.clientWidth
+import {getDimensions} from "util/dimensions"
 
-  const height = window.innerHeight
-    || document.documentElement.clientHeight
-    || document.body.clientHeight
-  return {
-    width,
-    height
-  }
-
-
-}
-
-function loading_data({course, topic, id}) {
+function loading_data({course, topic, id}, widget) {
   function loading() {
-    const url = `/courses/${course}/${topic}/${id}.js`
+    const url = `/courses/${course}/${topic}/${id}_${widget.id}.js`
 
     return new Promise((resolve, reject) => {
       $.get(url, data => {
@@ -64,12 +51,15 @@ function loading_data({course, topic, id}) {
   return loading()
 
 }
-class _Fiddle extends Component{
+export class Fiddle extends Component{
 
   constructor(){
     super()
     this.state = {
-      content : null  
+      content : null,
+      loading : true,
+      show_code : true,
+      show_html : true
     }
   }
   
@@ -82,8 +72,7 @@ class _Fiddle extends Component{
       
       if(_s.refs.frame)
         _s.refs.frame.reload()
-      
-      
+
     })
   }
   
@@ -94,10 +83,11 @@ class _Fiddle extends Component{
   
   reloading(course){
     const _s = this
-    loading_data(course)
+    loading_data(course, this.props.widget)
       .then(data => {
         _s.setState({
-          content : data || ""
+          content : data || "",
+          loading : false
         }, () => {
           _s.refs.editor.reload()
         })  
@@ -124,32 +114,57 @@ class _Fiddle extends Component{
   
   _compile(){
     const course = this.props.course
-    store.dispatch(compile(course.course, course.topic, course.id)) 
+    store.dispatch(compile(course.course, course.topic, course.id, this.props.widget)) 
   }
   
   _save(){
-
-    this.refs.editor.saveCtx()
+    if(!this.state.loading)
+      this.refs.editor.saveCtx()
   }
+
+  _toggleCode(){
+    this.setState({
+      show_code : !this.state.show_code
+    })
+    
+  }
+
+  _toggleHtml(){
+    this.setState({
+      show_html: !this.state.show_html
+    })
+  }
+  
+
   render(){
-    if(this.state.content === null) {
+    if(this.state.content === null || this.state.loading) {
       return null
     }
-    return <div>
-
-      <div className="title">{this.props.course.title}</div>
+    
+    return <div className="fiddle">
 
       <div className="options">
-        <div className="option" onClick={this._compile.bind(this)} >RUN</div>
-        <div className="option" onClick={this._save.bind(this)} >SAVE</div>
+        <div className="option" onClick={this._compile.bind(this)} ><i className="material-icons">play_arrow</i></div>
+        <div className="option" onClick={this._toggleCode.bind(this)} >code</div>
+        <div className="option" onClick={this._toggleHtml.bind(this)} >html</div>
+        <div style={{clear : "both"}}></div>
       </div>
-      <CodeEditor course={this.props.course} initialContent={this.state.content} ref="editor" />
-        
-      <Frame  course={this.props.course} ref="frame" />
+
+      <div>
+        <CodeEditor
+          show_html={this.state.show_html} show_code={this.state.show_code}
+          style={this.props.style}
+          widget={this.props.widget} course={this.props.course}
+          initialContent={this.state.content} ref="editor"/>
+
+        <Frame show_html={this.state.show_html} show_code={this.state.show_code} widget={this.props.widget} course={this.props.course} ref="frame"/>
+        <div style={{clear : "both"}}/>
+      </div>
     </div>
     
   }
 }
+
 
 class Frame extends Component{
 
@@ -157,13 +172,20 @@ class Frame extends Component{
     this.refs.frame.contentWindow.location.reload()
   }
 
-  render()
-  {
+  render() {
     
+    
+    const p = (show_code, show_html) => {
+      if(show_code && show_html) {
+        return "30%"
+      } else if(show_html) {
+        return  "100%"
+      }
+      
+    } 
     const course = this.props.course
-    const src = "/app?file=" + course.course + "_" + course.topic + "_" + course.id
-    return <div className="frame">
-
+    const src = "/app?file=" + course.course + "_" + course.topic + "_" + course.id + "_" + this.props.widget.id
+    return <div className="frame" style={{display : this.props.show_html ? "block" : "none", width : p(this.props.show_code, this.props.show_html)}}>
       <iframe frameBorder="0" src={src} ref="frame"/>
 
     </div>
@@ -181,12 +203,12 @@ class CodeEditor extends Component {
   componentDidMount(){
     this.doc = CodeMirror(this.refs.editor, {
       value: this.props.initialContent,
-      mode:  "javascript",
+      mode:  "jsx",
       cursorHeight : 1 
     });
 
     
-    // this.I = setInterval( this._saveCtx.bind(this), 1000)
+    this.I = setInterval( this.saveCtx.bind(this), 1000)
   }
 
   compomentWillUnmount(){
@@ -197,19 +219,20 @@ class CodeEditor extends Component {
 
     const value = this.doc.getValue()
     const course = this.props.course
-    store.dispatch(save(course.course, course.topic, course.id, value))
+    store.dispatch(save(course.course, course.topic, course.id, value, this.props.widget))
     
-    console.log(value)
   }
   render(){
-    return <div ref="editor" className="editor"></div>
+     
+    const p = (show_code, show_html) => {
+      if(show_code && show_html) {
+        return "70%"
+      } else if(show_code) {
+        return  "100%"
+      }
+      
+    } 
+    return <div ref="editor" style={{height : this.props.style.h + "px", display : this.props.show_code ? "block" : "none", width : p(this.props.show_code, this.props.show_html)}} className="editor"></div>
   }
 }
 
-
-const map = (state) => {
-  return {
-    course : state.course
-  }
-}
-export let Fiddle = connect(map)(_Fiddle)

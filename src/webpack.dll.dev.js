@@ -4,7 +4,7 @@ var path    = require('path')
 
 module.exports = {
   entry: {
-    'react' : ['react', 'react-dom', 'qs', 'url-parse', 'redux', 'react-redux', 'redux-thunk']
+    'react' : ['react', 'react-dom', 'qs', 'url-parse', 'redux', 'react-redux', 'redux-thunk', 'babel-polyfill']
   },
 
   output: {

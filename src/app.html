@@ -15,8 +15,9 @@
 <script>
     var file = window.location.href.match(/\?file=(.*)/)[1]
     var prts = file.split("_")
+    var last = prts.pop()
 
-    var src = "/courses/" + prts.join("/") + ".bundle.js"
+    var src = "/courses/" + prts.join("/") + "_" +last + ".bundle.js"
 
     var script = document.createElement("script")
     script.src = src

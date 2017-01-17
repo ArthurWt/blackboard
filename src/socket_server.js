@@ -24,7 +24,6 @@ io.on('connection', function(socket){
 		
 		var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + ".log")
 
-		console.log(file)
 		delete msg.course
 		delete msg.topic
 		delete msg.id
@@ -46,27 +45,65 @@ io.on('connection', function(socket){
 		}
 		
 	})
-
-	socket.on("save", function(msg) {
+	
+	socket.on('save-widget', function(msg){
 		var dir = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic)
-		console.log("save dir:" + dir)
 		if(!dirs[dir]) {
 			dirs[dir] = true
 			mkdirp.sync(dir)
 		}
 
-		var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + ".js")
+		var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + ".widget")
+
+		fs.writeFileSync(file, JSON.stringify(msg.widgets))
+	})
+
+
+	socket.on('delete-widget', function(msg){
+		var file = null
+		console.log(msg)
+		if(msg.widget.type === "markdown"){
+			file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + "_" + msg.widget.id + ".md")
+		}else if(msg.widget.type === "code") {
+			file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + "_" + msg.widget.id + ".js")
+		}
+		console.log(file)
+		fs.unlinkSync(file);	
+	})
+	socket.on('save-markdown', function(msg){
+		
+		var dir = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic)
+		if(!dirs[dir]) {
+			dirs[dir] = true
+			mkdirp.sync(dir)
+		}
+
+		var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + "_" + msg.widget.id + ".md")
+		fs.writeFileSync(file, msg.markdown)
+	})
+	
+	socket.on("save", function(msg) {
+
+		console.log('msg=compile')
+		var dir = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic)
+		if(!dirs[dir]) {
+			dirs[dir] = true
+			mkdirp.sync(dir)
+		}
+
+		var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + "_" + msg.widget.id + ".js")
 
 		fs.writeFileSync(file, msg.content + "\n")
 
 	})
 
 	socket.on("compile", function(msg) {
+		console.log('msg=compile')
 
 		try{
-			var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + ".js")
+			var file = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic, msg.id + "_" + msg.widget.id + ".js")
 			var dir = path.resolve(__dirname, "dist/courses/", msg.course, msg.topic)
-			var output = msg.id + ".bundle.js"
+			var output = msg.id + "_" + msg.widget.id + ".bundle.js"
 
 
 			if(!fs.existsSync(file)) {
@@ -77,7 +114,6 @@ io.on('connection', function(socket){
 			compile(file, dir, output, function(errors){
 
 				if(errors && errors.length > 0) {
-
 					socket.emit("compile-error", errors[0])
 				}
 				socket.emit("compile-succ")

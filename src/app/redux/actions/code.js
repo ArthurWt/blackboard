@@ -27,23 +27,25 @@ export const ACTION_SAVE = "save@Fiddle"
 export const ACTION_COMPILE = "compile@Fiddle"
 
 
-export const save = (course, topic, id, content) => {
+export const save = (course, topic, id, content, widget) => {
   return {
     type : ACTION_SAVE,
     course,
     topic,
     id,
-    content 
+    content ,
+    widget
   }
 }
 
 
-export const compile = (course, topic, id) => {
+export const compile = (course, topic, id, widget) => {
   return {
     type : ACTION_COMPILE,
     course,
     topic,
     id,
+    widget
   }
 }
 
