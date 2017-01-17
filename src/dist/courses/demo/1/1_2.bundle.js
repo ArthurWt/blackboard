@@ -66,15 +66,7 @@
 
 	"use strict";
 
-	function A() {
-	  return new Promise(function (reosove, reject) {
-	    resolve(1);
-	  });
-	}
-
-	A().then(function (data) {
-	  return alert(data);
-	});
+	console.log("hello");
 
 /***/ }
 /******/ ]);

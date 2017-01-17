@@ -25,44 +25,71 @@
  */
 import React, {Component} from 'react'
 
-// Meter class that generates a number correlated to audio volume.
-// The meter class itself displays nothing, but it makes the
-// instantaneous and time-decaying volumes available for inspection.
-// It also reports on the fraction of samples that were at or near
-// the top of the measurement range.
-function SoundMeter(context) {
-  this.context = context;
-  this.instant = 0.0;
-  this.slow = 0.0;
-  this.clip = 0.0;
-  this.script = context.createScriptProcessor(2048, 1, 1);
-  var that = this;
-  this.script.onaudioprocess = function(event) {
-    var input = event.inputBuffer.getChannelData(0);
-    var i;
-    var sum = 0.0;
-    var clipcount = 0;
-    for (i = 0; i < input.length; ++i) {
-      sum += input[i] * input[i];
-      if (Math.abs(input[i]) > 0.99) {
-        clipcount += 1;
-      }
-    }
-    that.instant = Math.sqrt(sum / input.length);
-    that.slow = 0.95 * that.slow + 0.05 * that.instant;
-    that.clip = clipcount / input.length;
-  };
-}
+
+import {SoundMeter} from "util/SoundMeter"
+
 
 export class AudioRecorder extends Component {
+
+  constructor(){
+    super()
+    this.state = {
+      soundValue : 0
+    }
+    
+    this.handleSuccess = this.handleSuccess.bind(this)
+  }
+  componentDidMount(){
+    
+  }
+  
+  start(){
+    console.log("start @AudioRecorder")
+    this.audioContext = new AudioContext()
+    const constraints = {
+      audio: true,
+      video: false
+    }
+    
+    navigator
+      .mediaDevices
+      .getUserMedia(constraints).
+      then(this.handleSuccess)
+      .catch(this.handleError);
+  }
+
+  handleSuccess(stream){
+    // window.stream = stream;
+    const soundMeter = new SoundMeter(this.audioContext);
+    
+    const _s = this
+
+    soundMeter.connectToSource(stream, function(e) {
+      if (e) {
+        alert(e);
+        return;
+      }
+      setInterval(function() {
+        console.log(soundMeter.instant.toFixed(2))
+        _s.setState({
+          soundValue : soundMeter.instant.toFixed(2)
+        })
+      }, 200);
+    }); 
+  }
+  
+  handleError(error){
+    console.error(error)
+    
+  }
+  
   render(){
       
-    return <div>
-      <div id="instant">
-        <div class="label">Instant: </div>
-        <meter high="0.25" max="1" value="0"></meter>
-        <div class="value"></div>
+    return <div style={{width : '100%', paddingTop : '20px'}}>
+      <div onClick={this.start.bind(this)} style={{height : "40px", width : '100%'}}>
+        <i className="material-icons">keyboard_voice</i>
       </div>
+      <meter style={{width : '100%'}} high="0.25" min="0" max="0.3" value={this.state.soundValue}></meter>
     </div>
   }
 }

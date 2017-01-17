@@ -25,10 +25,33 @@
 
 import React, {Component} from 'react'
 
+const HSIZE = 20 
+
 export class Dropbox extends Component{
+
+  static __lock = null
+  static __id_counter = 0
+  static __refs = {}
+
+  static __maxZIndexObj(){
+    let max = -1
+    let maxObj = null
+    for(let key in Dropbox.__refs) {
+      if(max < Dropbox.__refs[key].state.style.zIndex) {
+        max =  Dropbox.__refs[key].state.style.zIndex
+        maxObj = Dropbox.__refs[key]
+      }
+    }
+
+    return maxObj
+
+  }
 
   constructor({widget : {x, y, w, h}}){
     super()
+
+    this.id = ++Dropbox.__id_counter
+    Dropbox.__refs[this.id] = this
 
     this.state = {
       style : {
@@ -54,7 +77,7 @@ export class Dropbox extends Component{
 
   componentWillUnmount(){
 
-
+    delete Dropbox.__refs[this.id]
     document.body.removeEventListener("mouseup", this._dragend)
     document.body.removeEventListener("mousemove", this._drag)
   }
@@ -69,15 +92,114 @@ export class Dropbox extends Component{
       x: this.state.style.x,
       y: this.state.style.y,
       w: this.state.style.w,
-      h: this.state.style.h
+      h: this.state.style.h,
+      zIndex : this.state.style.zIndex
     })
+  }
+
+
+  _in_boundary(){
+    const cond1 = event.pageX - this.state.style.x > 0
+    const cond2 = event.pageY - this.state.style.y > 0
+    const cond3 = event.pageX - (this.state.style.x + this.state.style.w) < 0
+    const cond4 = event.pageY - (this.state.style.y + this.state.style.h) < 0
+    return cond1 && cond2 && cond3 && cond4
+  }
+
+  _in_drag_area() {
+    const cond1 = event.pageX - this.state.style.x > 0
+    const cond2 = event.pageY - this.state.style.y > 0
+    const cond3 = event.pageX - (this.state.style.x + this.state.style.w) < 0
+    const cond4 = event.pageY - (this.state.style.y + HSIZE) < 0
+    return cond1 && cond2 && cond3 && cond4
+  }
+
+  /**
+   * 请求释放lock
+   * 比较
+   * @param dropbox
+   * @private
+   */
+  _request_release(dropbox, event){
+
+    if(this.state.draging) {
+      return false
+    }
+    //console.log("request " + this.id + " to release lock")
+    if(!this._in_boundary(event)) {
+      //console.log(this.id + " agree release lock")
+      return true
+    }
+    else {
+      //console.log("compare zIndex")
+      //console.log(this.id + " zIndex:" + this.state.style.zIndex )
+      //console.log(dropbox.id + " zIndex:" + dropbox.state.style.zIndex )
+      if( (this.state.style.zIndex == dropbox.state.style.zIndex) && this.id < dropbox.id) {
+
+        //console.log("brc 1")
+        return true
+      }
+      else if(this.state.style.zIndex < dropbox.state.style.zIndex) {
+
+        //console.log("brc 2")
+        return true
+      }else {
+
+        //console.log("brc 3")
+        return false
+      }
+
+    }
+
+    return true
+  }
+  _require_lock(event){
+
+    
+    if(this._in_boundary(event)) {
+
+      //console.log("in boundary")
+      if(!Dropbox.__lock) {
+        //console.log("no lock")
+        Dropbox.__lock = this.id
+        //console.log("require lock success")
+      }
+      else if(Dropbox.__lock !=  this.id) {
+
+        //console.log("lock : " + Dropbox.__lock)
+        if(Dropbox.__refs[Dropbox.__lock]){
+          if(Dropbox.__refs[Dropbox.__lock]._request_release(this, event)) {
+            Dropbox.__lock = this.id
+            //console.log("require lock success")
+          }else{
+
+            //console.log("require lock fail")
+          }
+
+        }else {
+          Dropbox.__lock = this.id
+          //console.log("require lock success")
+        }
+      }else {
+
+        //console.log("already have lock")
+      }
+    }
+    else {
+      //console.log("require lock fail")
+    }
   }
 
   _drag(event){
 
+    this._require_lock(event)
+
+    if(Dropbox.__lock != this.id) {
+      return
+    }
 
     //// 判断是否算作调整大小
-    // console.log(event.pageY, event.pageY, event.pageY)
+    // //console.log(event.pageY, event.pageY, event.pageY)
 
 
     if(!this.state.draging) {
@@ -95,7 +217,7 @@ export class Dropbox extends Component{
       else if (dn < th && de < th) {
         this.mode = "ne-resize"
       } else if(de < th && ds < th) {
-        this.mode = 'se-resize' 
+        this.mode = 'se-resize'
       } else if(ds < th && dw < th) {
         this.mode = "sw-resize"
       }
@@ -113,30 +235,31 @@ export class Dropbox extends Component{
       }
       else {
 
-        this.mode = 'drag-drop'
+        if(this._in_drag_area(event)) {
+          this.mode = 'move'
+        } else {
+          this.mode = ''
+        }
       }
 
-
-
-      if(this.mode != 'drag-drop') {
-        console.log('change cursor to:' + this.mode)
-        document.getElementById("app").style.cursor = this.mode
-      }else{
-        document.getElementById("app").style.cursor =""
-      }
+      //console.log('change cursor to:' + this.mode)
+      document.getElementById("app").style.cursor = this.mode
 
       return
     }
 
-    event.stopPropagation()
-    event.preventDefault()
-    console.log(this.mode)
+    if(this.mode) {
+      event.stopPropagation()
+      event.preventDefault()  
+    }
+    
+    //console.log(this.mode)
 
     if (this.X && this.Y) {
 
       const xDiff = this.X - this.startX
       const yDiff = this.Y - this.startY
-       console.log(xDiff, yDiff)
+      //console.log(xDiff, yDiff)
 
       if(this.mode === 'nw-resize') {
 
@@ -178,7 +301,7 @@ export class Dropbox extends Component{
 
           this._dispatch_change()
         }).bind(this))
-        
+
       } else if (this.mode == 'sw-resize') {
 
         this.setState({
@@ -244,7 +367,7 @@ export class Dropbox extends Component{
 
 
 
-      else if(this.mode === 'drag-drop') {
+      else if(this.mode === 'move') {
 
 
         this.setState({
@@ -266,21 +389,47 @@ export class Dropbox extends Component{
   }
   _dragstart(event){
 
+    this._require_lock(event)
+    if(Dropbox.__lock !== this.id) {
+      return
+    }
+
+    const maxObj = Dropbox.__maxZIndexObj()
+    
     this.startX = event.pageX
     this.startY = event.pageY
-    this.startState = {...this.state.style}
-    this.dragCount = 0
-    this.dragI = setInterval( (() => {
-      this.dragCount ++
-      if(this.dragCount > 20) {
-        clearInterval(this.dragI)
-        this.setState({
-          draging : true
-        })
-      }
-    }).bind(this), 10)
+    const startDrag = (() => {
+      
+      
+      this.startState = {...this.state.style}
+      this.dragCount = 0
+      this.dragI = setInterval( (() => {
+        this.dragCount ++
+        if(this.dragCount > 20) {
+          clearInterval(this.dragI)
+          this.setState({
+            draging : true
+          })
+        }
+      }).bind(this), 10)
+    }).bind(this)
+
+    if(maxObj.id !== this.id) {
+      this.setState({
+        style : {...this.state.style, zIndex : maxObj.state.style.zIndex + 1}
+      }, () => {
+        startDrag()
+      })
+    } else {
+      startDrag()
+    }
+
+
   }
   _dragend() {
+    if(Dropbox.__lock === this.id) {
+      Dropbox.__lock = null
+    }
     this.mode = null
     clearInterval(this.dragI)
     this.setState({
@@ -288,29 +437,34 @@ export class Dropbox extends Component{
     })
   }
   _delete(){
-    store.dispatch({
-      type : "DELETE_WIDGET",
-      course : this.props.course.course,
-      topic : this.props.course.topic,
-      id : this.props.course.id,
-      widget : this.props.widget
+    if(confirm("您确定要删除吗?")){
+      store.dispatch({
+        type : "DELETE_WIDGET",
+        course : this.props.course.course,
+        topic : this.props.course.topic,
+        id : this.props.course.id,
+        widget : this.props.widget
 
-    })
+      })
+    }
+
 
   }
 
   _go(n) {
-    
+
     return (() => {
-      
+
       let zIndex = this.state.style.zIndex + n
       if(zIndex < 10) {
         zIndex = 10
       }
-      this.setState({style : {...this.state.style, zIndex}})
-      
+      this.setState({style : {...this.state.style, zIndex}}, (() => {
+        this._dispatch_change()
+      }).bind(this))
+
     }).bind(this)
-    
+
   }
 
 
@@ -322,7 +476,11 @@ export class Dropbox extends Component{
 
     const borderColor = this.state.draging ? "black" : "#eee"
 
-    const nStyle = {top : style.y + "px", width : style.w + "px", height : style.h + "px", left : style.x+'px', borderColor : borderColor, zIndex : style.zIndex}
+    const nStyle = {
+      top : style.y + "px",
+      width : style.w + "px",
+      height : style.h + "px",
+      left : style.x+'px', borderColor : borderColor, zIndex : style.zIndex}
 
 
     return <div
@@ -335,7 +493,11 @@ export class Dropbox extends Component{
         <i className="material-icons" onClick={this._go(-1)}>arrow_downward</i>
         <i className="material-icons" onClick={this._delete.bind(this)}>delete</i>
       </div>
-      {React.cloneElement(this.props.children, {style})}
+      <div>
+        <div className="drag-area">
+        </div>
+        {React.cloneElement(this.props.children, {style})}
+      </div>
     </div>
   }
 }

@@ -66,7 +66,7 @@ const add_widget = (state, topic, id, widget) => {
 
 
 
-const change_widget = (state, topic, id, {id : widget_id}, x, y, w, h) => {
+const change_widget = (state, topic, id, {id : widget_id}, x, y, w, h, zIndex) => {
 
   const newState = {...state}
 
@@ -77,6 +77,7 @@ const change_widget = (state, topic, id, {id : widget_id}, x, y, w, h) => {
   widget.y = y
   widget.w = w
   widget.h = h
+  widget.zIndex = zIndex
   
   // console.log("@add_widget new State")
   // console.log(newState)
@@ -100,7 +101,7 @@ export const course = (state = initial, action) => {
     case "ADD_WIDGET" : 
       return add_widget(state, action.topic, action.id, action.widget)
     case "CHANGE_WIDGET" :
-      return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h)
+      return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h, action.zIndex)
     
     case "DELETE_WIDGET" :
 

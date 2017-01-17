@@ -38,7 +38,10 @@ import {loading_data} from 'data/apis'
 
 import {Dropbox} from "Dropbox"
 import {Markdown} from "Markdown"
+
 import {Fiddle} from "Fiddle"
+
+import {AudioRecorder} from "AudioRecorder"
 
 class _Blackboard extends Component{
 
@@ -322,6 +325,10 @@ class _Blackboard extends Component{
         case "code":
           return <Dropbox key={widget.id} course={this.props.course} widget={widget}>
             <Fiddle course={this.props.course} widget={widget} />
+          </Dropbox>
+        case "audio" :
+          return  <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+            <AudioRecorder course={this.props.course} widget={widget} />
           </Dropbox>
 
         

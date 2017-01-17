@@ -649,6 +649,8 @@
 	
 	var _Fiddle = __webpack_require__(17);
 	
+	var _AudioRecorder = __webpack_require__(45);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -957,6 +959,12 @@
 	              _Dropbox.Dropbox,
 	              { key: widget.id, course: _this5.props.course, widget: widget },
 	              _react2.default.createElement(_Fiddle.Fiddle, { course: _this5.props.course, widget: widget })
+	            );
+	          case "audio":
+	            return _react2.default.createElement(
+	              _Dropbox.Dropbox,
+	              { key: widget.id, course: _this5.props.course, widget: widget },
+	              _react2.default.createElement(_AudioRecorder.AudioRecorder, { course: _this5.props.course, widget: widget })
 	            );
 	
 	        }
@@ -1327,8 +1335,26 @@
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
 	
+	var HSIZE = 20;
+	
 	var Dropbox = exports.Dropbox = function (_Component) {
 	  _inherits(Dropbox, _Component);
+	
+	  _createClass(Dropbox, null, [{
+	    key: "__maxZIndexObj",
+	    value: function __maxZIndexObj() {
+	      var max = -1;
+	      var maxObj = null;
+	      for (var key in Dropbox.__refs) {
+	        if (max < Dropbox.__refs[key].state.style.zIndex) {
+	          max = Dropbox.__refs[key].state.style.zIndex;
+	          maxObj = Dropbox.__refs[key];
+	        }
+	      }
+	
+	      return maxObj;
+	    }
+	  }]);
 	
 	  function Dropbox(_ref) {
 	    var _ref$widget = _ref.widget,
@@ -1340,6 +1366,9 @@
 	    _classCallCheck(this, Dropbox);
 	
 	    var _this = _possibleConstructorReturn(this, (Dropbox.__proto__ || Object.getPrototypeOf(Dropbox)).call(this));
+	
+	    _this.id = ++Dropbox.__id_counter;
+	    Dropbox.__refs[_this.id] = _this;
 	
 	    _this.state = {
 	      style: {
@@ -1369,6 +1398,7 @@
 	    key: "componentWillUnmount",
 	    value: function componentWillUnmount() {
 	
+	      delete Dropbox.__refs[this.id];
 	      document.body.removeEventListener("mouseup", this._dragend);
 	      document.body.removeEventListener("mousemove", this._drag);
 	    }
@@ -1383,16 +1413,115 @@
 	        x: this.state.style.x,
 	        y: this.state.style.y,
 	        w: this.state.style.w,
-	        h: this.state.style.h
+	        h: this.state.style.h,
+	        zIndex: this.state.style.zIndex
 	      });
+	    }
+	  }, {
+	    key: "_in_boundary",
+	    value: function _in_boundary() {
+	      var cond1 = event.pageX - this.state.style.x > 0;
+	      var cond2 = event.pageY - this.state.style.y > 0;
+	      var cond3 = event.pageX - (this.state.style.x + this.state.style.w) < 0;
+	      var cond4 = event.pageY - (this.state.style.y + this.state.style.h) < 0;
+	      return cond1 && cond2 && cond3 && cond4;
+	    }
+	  }, {
+	    key: "_in_drag_area",
+	    value: function _in_drag_area() {
+	      var cond1 = event.pageX - this.state.style.x > 0;
+	      var cond2 = event.pageY - this.state.style.y > 0;
+	      var cond3 = event.pageX - (this.state.style.x + this.state.style.w) < 0;
+	      var cond4 = event.pageY - (this.state.style.y + HSIZE) < 0;
+	      return cond1 && cond2 && cond3 && cond4;
+	    }
+	
+	    /**
+	     * 请求释放lock
+	     * 比较
+	     * @param dropbox
+	     * @private
+	     */
+	
+	  }, {
+	    key: "_request_release",
+	    value: function _request_release(dropbox, event) {
+	
+	      if (this.state.draging) {
+	        return false;
+	      }
+	      //console.log("request " + this.id + " to release lock")
+	      if (!this._in_boundary(event)) {
+	        //console.log(this.id + " agree release lock")
+	        return true;
+	      } else {
+	        //console.log("compare zIndex")
+	        //console.log(this.id + " zIndex:" + this.state.style.zIndex )
+	        //console.log(dropbox.id + " zIndex:" + dropbox.state.style.zIndex )
+	        if (this.state.style.zIndex == dropbox.state.style.zIndex && this.id < dropbox.id) {
+	
+	          //console.log("brc 1")
+	          return true;
+	        } else if (this.state.style.zIndex < dropbox.state.style.zIndex) {
+	
+	          //console.log("brc 2")
+	          return true;
+	        } else {
+	
+	          //console.log("brc 3")
+	          return false;
+	        }
+	      }
+	
+	      return true;
+	    }
+	  }, {
+	    key: "_require_lock",
+	    value: function _require_lock(event) {
+	
+	      if (this._in_boundary(event)) {
+	
+	        //console.log("in boundary")
+	        if (!Dropbox.__lock) {
+	          //console.log("no lock")
+	          Dropbox.__lock = this.id;
+	          //console.log("require lock success")
+	        } else if (Dropbox.__lock != this.id) {
+	
+	          //console.log("lock : " + Dropbox.__lock)
+	          if (Dropbox.__refs[Dropbox.__lock]) {
+	            if (Dropbox.__refs[Dropbox.__lock]._request_release(this, event)) {
+	              Dropbox.__lock = this.id;
+	              //console.log("require lock success")
+	            } else {
+	
+	                //console.log("require lock fail")
+	              }
+	          } else {
+	            Dropbox.__lock = this.id;
+	            //console.log("require lock success")
+	          }
+	        } else {
+	
+	            //console.log("already have lock")
+	          }
+	      } else {
+	          //console.log("require lock fail")
+	        }
 	    }
 	  }, {
 	    key: "_drag",
 	    value: function _drag(event) {
 	      var _this2 = this;
 	
+	      this._require_lock(event);
+	
+	      if (Dropbox.__lock != this.id) {
+	        return;
+	      }
+	
 	      //// 判断是否算作调整大小
-	      // console.log(event.pageY, event.pageY, event.pageY)
+	      // //console.log(event.pageY, event.pageY, event.pageY)
 	
 	
 	      if (!this.state.draging) {
@@ -1421,28 +1550,31 @@
 	          this.mode = 's-resize';
 	        } else {
 	
-	          this.mode = 'drag-drop';
+	          if (this._in_drag_area(event)) {
+	            this.mode = 'move';
+	          } else {
+	            this.mode = '';
+	          }
 	        }
 	
-	        if (this.mode != 'drag-drop') {
-	          console.log('change cursor to:' + this.mode);
-	          document.getElementById("app").style.cursor = this.mode;
-	        } else {
-	          document.getElementById("app").style.cursor = "";
-	        }
+	        //console.log('change cursor to:' + this.mode)
+	        document.getElementById("app").style.cursor = this.mode;
 	
 	        return;
 	      }
 	
-	      event.stopPropagation();
-	      event.preventDefault();
-	      console.log(this.mode);
+	      if (this.mode) {
+	        event.stopPropagation();
+	        event.preventDefault();
+	      }
+	
+	      //console.log(this.mode)
 	
 	      if (this.X && this.Y) {
 	
 	        var xDiff = this.X - this.startX;
 	        var yDiff = this.Y - this.startY;
-	        console.log(xDiff, yDiff);
+	        //console.log(xDiff, yDiff)
 	
 	        if (this.mode === 'nw-resize') {
 	
@@ -1529,7 +1661,7 @@
 	          }, function () {
 	            _this2._dispatch_change();
 	          }.bind(this));
-	        } else if (this.mode === 'drag-drop') {
+	        } else if (this.mode === 'move') {
 	
 	          this.setState({
 	            style: _extends({}, this.state.style, {
@@ -1549,23 +1681,46 @@
 	    value: function _dragstart(event) {
 	      var _this3 = this;
 	
+	      this._require_lock(event);
+	      if (Dropbox.__lock !== this.id) {
+	        return;
+	      }
+	
+	      var maxObj = Dropbox.__maxZIndexObj();
+	
 	      this.startX = event.pageX;
 	      this.startY = event.pageY;
-	      this.startState = _extends({}, this.state.style);
-	      this.dragCount = 0;
-	      this.dragI = setInterval(function () {
-	        _this3.dragCount++;
-	        if (_this3.dragCount > 20) {
-	          clearInterval(_this3.dragI);
-	          _this3.setState({
-	            draging: true
-	          });
-	        }
-	      }.bind(this), 10);
+	      var startDrag = function () {
+	
+	        _this3.startState = _extends({}, _this3.state.style);
+	        _this3.dragCount = 0;
+	        _this3.dragI = setInterval(function () {
+	          _this3.dragCount++;
+	          if (_this3.dragCount > 20) {
+	            clearInterval(_this3.dragI);
+	            _this3.setState({
+	              draging: true
+	            });
+	          }
+	        }.bind(_this3), 10);
+	      }.bind(this);
+	
+	      if (maxObj.id !== this.id) {
+	        this.setState({
+	          style: _extends({}, this.state.style, { zIndex: maxObj.state.style.zIndex + 1 })
+	        }, function () {
+	          startDrag();
+	        });
+	      } else {
+	        startDrag();
+	      }
 	    }
 	  }, {
 	    key: "_dragend",
 	    value: function _dragend() {
+	      if (Dropbox.__lock === this.id) {
+	        Dropbox.__lock = null;
+	      }
 	      this.mode = null;
 	      clearInterval(this.dragI);
 	      this.setState({
@@ -1575,14 +1730,16 @@
 	  }, {
 	    key: "_delete",
 	    value: function _delete() {
-	      store.dispatch({
-	        type: "DELETE_WIDGET",
-	        course: this.props.course.course,
-	        topic: this.props.course.topic,
-	        id: this.props.course.id,
-	        widget: this.props.widget
+	      if (confirm("您确定要删除吗?")) {
+	        store.dispatch({
+	          type: "DELETE_WIDGET",
+	          course: this.props.course.course,
+	          topic: this.props.course.topic,
+	          id: this.props.course.id,
+	          widget: this.props.widget
 	
-	      });
+	        });
+	      }
 	    }
 	  }, {
 	    key: "_go",
@@ -1595,7 +1752,9 @@
 	        if (zIndex < 10) {
 	          zIndex = 10;
 	        }
-	        _this4.setState({ style: _extends({}, _this4.state.style, { zIndex: zIndex }) });
+	        _this4.setState({ style: _extends({}, _this4.state.style, { zIndex: zIndex }) }, function () {
+	          _this4._dispatch_change();
+	        }.bind(_this4));
 	      }.bind(this);
 	    }
 	  }, {
@@ -1612,7 +1771,11 @@
 	
 	      var borderColor = this.state.draging ? "black" : "#eee";
 	
-	      var nStyle = { top: style.y + "px", width: style.w + "px", height: style.h + "px", left: style.x + 'px', borderColor: borderColor, zIndex: style.zIndex };
+	      var nStyle = {
+	        top: style.y + "px",
+	        width: style.w + "px",
+	        height: style.h + "px",
+	        left: style.x + 'px', borderColor: borderColor, zIndex: style.zIndex };
 	
 	      return _react2.default.createElement(
 	        "div",
@@ -1640,13 +1803,22 @@
 	            "delete"
 	          )
 	        ),
-	        _react2.default.cloneElement(this.props.children, { style: style })
+	        _react2.default.createElement(
+	          "div",
+	          null,
+	          _react2.default.createElement("div", { className: "drag-area" }),
+	          _react2.default.cloneElement(this.props.children, { style: style })
+	        )
 	      );
 	    }
 	  }]);
-
+	
 	  return Dropbox;
 	}(_react.Component);
+	
+	Dropbox.__lock = null;
+	Dropbox.__id_counter = 0;
+	Dropbox.__refs = {};
 
 /***/ },
 /* 16 */
@@ -3489,7 +3661,7 @@
 	  return newState;
 	};
 	
-	var change_widget = function change_widget(state, topic, id, _ref, x, y, w, h) {
+	var change_widget = function change_widget(state, topic, id, _ref, x, y, w, h, zIndex) {
 	  var widget_id = _ref.id;
 	
 	
@@ -3504,6 +3676,7 @@
 	  widget.y = y;
 	  widget.w = w;
 	  widget.h = h;
+	  widget.zIndex = zIndex;
 	
 	  // console.log("@add_widget new State")
 	  // console.log(newState)
@@ -3531,7 +3704,7 @@
 	    case "ADD_WIDGET":
 	      return add_widget(state, action.topic, action.id, action.widget);
 	    case "CHANGE_WIDGET":
-	      return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h);
+	      return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h, action.zIndex);
 	
 	    case "DELETE_WIDGET":
 	
@@ -3721,7 +3894,7 @@
 	
 	
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n}\n#app {\n  cursor: url(" + __webpack_require__(43) + "), auto;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n  -webkit-touch-callout: none; /* iOS Safari */\n  -webkit-user-select: none; /* Chrome/Safari/Opera */\n  -khtml-user-select: none; /* Konqueror */\n  -moz-user-select: none; /* Firefox */\n  -ms-user-select: none; /* Internet Explorer/Edge */\n  user-select: none; /* Non-prefixed version, currently\n                                  not supported by any browser */\n}\n.color {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 250px);\n  font-size: 28px;\n  opacity: 0.5;\n  top: 20px;\n  width: 500px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.fiddle .frame {\n  width: 30%;\n  float: left;\n  height: 100%;\n}\n.fiddle .frame iframe {\n  width: 100%;\n}\n.fiddle .editor {\n  border-right: 1px solid #eee;\n  font-size: 20px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  overflow: hidden;\n}\n.fiddle .options {\n  border-left: 1px solid #eee;\n  border-right: 1px solid #eee;\n  display: block;\n  z-index: 12;\n  background-color: #f2f3f4;\n  overflow: hidden;\n  height: 30px;\n}\n.fiddle .options .option {\n  float: left;\n  margin-right: 10px;\n  padding: 3px 10px;\n  line-height: 30px;\n}\n.fiddle .options .option:hover {\n  color: #0f0;\n}\n.dropbox {\n  position: absolute;\n  box-sizing: border-box;\n  overflow: hidden;\n  top: 0;\n  left: 0;\n  z-index: 10;\n  background-color: #fff;\n  resize: true;\n  border: 1px solid #f2f3f4;\n}\n.dropbox:hover {\n  border: 1px solid #eee;\n}\n.dropbox:hover .delete {\n  display: block;\n}\n.dropbox .delete {\n  color: #b5d592;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: none;\n  z-index: 999;\n}\n.markdown {\n  width: 100%;\n  min-width: 300px;\n  position: relative;\n}\n.markdown:hover .btn {\n  display: block;\n}\n.markdown .btn {\n  position: absolute;\n  display: none;\n  width: 20px;\n  height: 20px;\n  bottom: 10px;\n  right: 10px;\n  color: #b5d592;\n  text-align: center;\n  line-height: 20px;\n}\n.markdown .markdown-editor {\n  width: 50%;\n  float: left;\n}\n.markdown .markdown-editor textarea {\n  width: 100%;\n  border: none;\n  outline: none;\n  height: 100%;\n}\n.markdown .preview {\n  width: 50%;\n  float: left;\n  word-wrap: break-word;\n}\n.markdown .preview p {\n  font-size: 1rem;\n  color: #666;\n  margin-bottom: 10px;\n}\n.markdown .preview h1,\n.markdown .preview h2,\n.markdown .preview h3,\n.markdown .preview h4 {\n  margin-bottom: 10px;\n  font-family: \"Microsoft YaHei\";\n  color: #333;\n}\n.markdown .preview h1 {\n  font-size: 1.8rem;\n}\n.markdown .preview h2 {\n  font-szie: 1.6rem;\n}\n.markdown .preview h3 {\n  font-size: 1.4rem;\n}\n.markdown .preview h4 {\n  font-size: 1.1rem;\n}\n.markdown .preview ul,\n.markdown .preview ol {\n  padding-left: 3rem;\n}\n.markdown .preview pre {\n  margin: 10px;\n  padding: 10px;\n  background-color: #f2f3f4;\n}\n.tools {\n  position: fixed;\n  bottom: 0;\n}\n.tools .tools-btn {\n  width: 50px;\n  height: 50px;\n  text-align: center;\n  line-height: 50px;\n  color: #b5d592;\n  float: left;\n}\n.tools .tools-btn:hover i {\n  color: #0f0;\n}\n.tools .tools-btn i {\n  font-size: 48px;\n}\n.clearfix:after {\n  clear: both;\n}\n", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n}\n#app {\n  cursor: url(" + __webpack_require__(43) + "), auto;\n}\n.menu {\n  position: absolute;\n  z-index: 5;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  width: 100%;\n  height: 100%;\n  -webkit-touch-callout: none; /* iOS Safari */\n  -webkit-user-select: none; /* Chrome/Safari/Opera */\n  -khtml-user-select: none; /* Konqueror */\n  -moz-user-select: none; /* Firefox */\n  -ms-user-select: none; /* Internet Explorer/Edge */\n  user-select: none; /* Non-prefixed version, currently\n                                  not supported by any browser */\n}\n.color {\n  position: fixed;\n  right: 0;\n  bottom: 0;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 250px);\n  font-size: 28px;\n  opacity: 0.5;\n  top: 20px;\n  width: 500px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.fiddle .frame {\n  width: 30%;\n  float: left;\n  height: 100%;\n}\n.fiddle .frame iframe {\n  width: 100%;\n}\n.fiddle .editor {\n  border-right: 1px solid #eee;\n  font-size: 20px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  overflow: hidden;\n}\n.fiddle .options {\n  border-left: 1px solid #eee;\n  border-right: 1px solid #eee;\n  display: block;\n  z-index: 12;\n  background-color: #f2f3f4;\n  overflow: hidden;\n  height: 30px;\n}\n.fiddle .options .option {\n  float: left;\n  margin-right: 10px;\n  padding: 3px 10px;\n  line-height: 30px;\n}\n.fiddle .options .option:hover {\n  color: #0f0;\n}\n.dropbox {\n  position: absolute;\n  box-sizing: border-box;\n  overflow: hidden;\n  top: 0;\n  left: 0;\n  z-index: 10;\n  background-color: #fff;\n  resize: true;\n  border: 1px solid #f2f3f4;\n}\n.dropbox:hover {\n  border: 1px solid #eee;\n}\n.dropbox:hover .delete {\n  display: block;\n}\n.dropbox .delete {\n  color: #b5d592;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: none;\n  z-index: 999;\n}\n.markdown {\n  width: 100%;\n  min-width: 300px;\n  position: relative;\n}\n.markdown:hover .btn {\n  display: block;\n}\n.markdown .btn {\n  position: absolute;\n  display: none;\n  width: 20px;\n  height: 20px;\n  bottom: 10px;\n  right: 10px;\n  color: #b5d592;\n  text-align: center;\n  line-height: 20px;\n}\n.markdown .markdown-editor {\n  width: 50%;\n  float: left;\n}\n.markdown .markdown-editor textarea {\n  width: 100%;\n  border: none;\n  outline: none;\n  height: 100%;\n}\n.markdown .preview {\n  width: 50%;\n  float: left;\n  word-wrap: break-word;\n}\n.markdown .preview p {\n  font-size: 1rem;\n  color: #666;\n  margin-bottom: 10px;\n}\n.markdown .preview h1,\n.markdown .preview h2,\n.markdown .preview h3,\n.markdown .preview h4 {\n  margin-bottom: 10px;\n  font-family: \"Microsoft YaHei\";\n  color: #333;\n}\n.markdown .preview h1 {\n  font-size: 1.8rem;\n}\n.markdown .preview h2 {\n  font-szie: 1.6rem;\n}\n.markdown .preview h3 {\n  font-size: 1.4rem;\n}\n.markdown .preview h4 {\n  font-size: 1.1rem;\n}\n.markdown .preview ul,\n.markdown .preview ol {\n  padding-left: 3rem;\n}\n.markdown .preview pre {\n  margin: 10px;\n  padding: 10px;\n  background-color: #f2f3f4;\n}\n.tools {\n  position: fixed;\n  bottom: 0;\n}\n.tools .tools-btn {\n  width: 50px;\n  height: 50px;\n  text-align: center;\n  line-height: 50px;\n  color: #b5d592;\n  float: left;\n}\n.tools .tools-btn:hover i {\n  color: #0f0;\n}\n.tools .tools-btn i {\n  font-size: 48px;\n}\n.clearfix:after {\n  clear: both;\n}\n.drag-area {\n  height: 4px;\n  background-color: #eee;\n}\n", ""]);
 	
 	// exports
 
@@ -4039,6 +4212,235 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.AudioRecorder = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(4);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _SoundMeter = __webpack_require__(46);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /***********************************************
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * 
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * MIT License
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright (c) 2016 珠峰课堂,Ramroll
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Permission is hereby granted, free of charge, to any person obtaining a copy
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * of this software and associated documentation files (the "Software"), to deal
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * in the Software without restriction, including without limitation the rights
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * copies of the Software, and to permit persons to whom the Software is
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * furnished to do so, subject to the following conditions:
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * The above copyright notice and this permission notice shall be included in all
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * copies or substantial portions of the Software.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * SOFTWARE.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * 
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+	
+	
+	var AudioRecorder = exports.AudioRecorder = function (_Component) {
+	  _inherits(AudioRecorder, _Component);
+	
+	  function AudioRecorder() {
+	    _classCallCheck(this, AudioRecorder);
+	
+	    var _this = _possibleConstructorReturn(this, (AudioRecorder.__proto__ || Object.getPrototypeOf(AudioRecorder)).call(this));
+	
+	    _this.state = {
+	      soundValue: 0
+	    };
+	
+	    _this.handleSuccess = _this.handleSuccess.bind(_this);
+	    return _this;
+	  }
+	
+	  _createClass(AudioRecorder, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {}
+	  }, {
+	    key: "start",
+	    value: function start() {
+	      console.log("start @AudioRecorder");
+	      this.audioContext = new AudioContext();
+	      var constraints = {
+	        audio: true,
+	        video: false
+	      };
+	
+	      navigator.mediaDevices.getUserMedia(constraints).then(this.handleSuccess).catch(this.handleError);
+	    }
+	  }, {
+	    key: "handleSuccess",
+	    value: function handleSuccess(stream) {
+	      // window.stream = stream;
+	      var soundMeter = new _SoundMeter.SoundMeter(this.audioContext);
+	
+	      var _s = this;
+	
+	      soundMeter.connectToSource(stream, function (e) {
+	        if (e) {
+	          alert(e);
+	          return;
+	        }
+	        setInterval(function () {
+	          console.log(soundMeter.instant.toFixed(2));
+	          _s.setState({
+	            soundValue: soundMeter.instant.toFixed(2)
+	          });
+	        }, 200);
+	      });
+	    }
+	  }, {
+	    key: "handleError",
+	    value: function handleError(error) {
+	      console.error(error);
+	    }
+	  }, {
+	    key: "render",
+	    value: function render() {
+	
+	      return _react2.default.createElement(
+	        "div",
+	        { style: { width: '100%', paddingTop: '20px' } },
+	        _react2.default.createElement(
+	          "div",
+	          { onClick: this.start.bind(this), style: { height: "40px", width: '100%' } },
+	          _react2.default.createElement(
+	            "i",
+	            { className: "material-icons" },
+	            "keyboard_voice"
+	          )
+	        ),
+	        _react2.default.createElement("meter", { style: { width: '100%' }, high: "0.25", min: "0", max: "0.3", value: this.state.soundValue })
+	      );
+	    }
+	  }]);
+
+	  return AudioRecorder;
+	}(_react.Component);
+
+/***/ },
+/* 46 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/***********************************************
+	 *
+	 * MIT License
+	 *
+	 * Copyright (c) 2016 珠峰课堂,Ramroll
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy
+	 * of this software and associated documentation files (the "Software"), to deal
+	 * in the Software without restriction, including without limitation the rights
+	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	 * copies of the Software, and to permit persons to whom the Software is
+	 * furnished to do so, subject to the following conditions:
+	 *
+	 * The above copyright notice and this permission notice shall be included in all
+	 * copies or substantial portions of the Software.
+	 *
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	 * SOFTWARE.
+	 *
+	 */
+	
+	var SoundMeter = exports.SoundMeter = function () {
+	  function SoundMeter(context) {
+	    _classCallCheck(this, SoundMeter);
+	
+	    this.context = context;
+	    this.instant = 0.0;
+	    this.slow = 0.0;
+	    this.clip = 0.0;
+	    this.script = context.createScriptProcessor(2048, 1, 1);
+	    var that = this;
+	    this.script.onaudioprocess = function (event) {
+	      var input = event.inputBuffer.getChannelData(0);
+	      var i;
+	      var sum = 0.0;
+	      var clipcount = 0;
+	      for (i = 0; i < input.length; ++i) {
+	        sum += input[i] * input[i];
+	        if (Math.abs(input[i]) > 0.99) {
+	          clipcount += 1;
+	        }
+	      }
+	      that.instant = Math.sqrt(sum / input.length);
+	      that.slow = 0.95 * that.slow + 0.05 * that.instant;
+	      that.clip = clipcount / input.length;
+	    };
+	  }
+	
+	  _createClass(SoundMeter, [{
+	    key: 'connectToSource',
+	    value: function connectToSource(stream, callback) {
+	      console.log('SoundMeter connecting');
+	      try {
+	        this.mic = this.context.createMediaStreamSource(stream);
+	        this.mic.connect(this.script);
+	        // necessary to make sample run, but should not be.
+	        this.script.connect(this.context.destination);
+	        if (typeof callback !== 'undefined') {
+	          callback(null);
+	        }
+	      } catch (e) {
+	        console.error(e);
+	        if (typeof callback !== 'undefined') {
+	          callback(e);
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'stop',
+	    value: function stop() {
+	      this.mic.disconnect();
+	      this.script.disconnect();
+	    }
+	  }]);
+
+	  return SoundMeter;
+	}();
 
 /***/ }
 /******/ ]);
