@@ -41,7 +41,7 @@ function loading_data({course, topic, id}, widget) {
     return new Promise((resolve, reject) => {
       $.get(url, data => {
           resolve(data)
-        })
+        }, "text")
         .catch(err => {
           resolve(null)
         })

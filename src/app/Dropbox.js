@@ -29,29 +29,55 @@ const HSIZE = 20
 
 export class Dropbox extends Component{
 
-  static __lock = null
-  static __id_counter = 0
+  static __lock = {}
+  static __id_counter = 0 
   static __refs = {}
 
-  static __maxZIndexObj(){
+  static __maxZIndexObj(topic, id){
     let max = -1
     let maxObj = null
-    for(let key in Dropbox.__refs) {
-      if(max < Dropbox.__refs[key].state.style.zIndex) {
-        max =  Dropbox.__refs[key].state.style.zIndex
-        maxObj = Dropbox.__refs[key]
+    if(!Dropbox.__refs[topic] || !Dropbox.__refs[topic][id]){
+      return maxObj
+    }
+    for(let key in Dropbox.__refs[topic][id]) {
+      if(max < Dropbox.__refs[topic][id][key].state.style.zIndex) {
+        max =  Dropbox.__refs[topic][id][key].state.style.zIndex
+        maxObj = Dropbox.__refs[topic][id][key]
       }
     }
-
     return maxObj
-
   }
 
-  constructor({widget : {x, y, w, h}}){
+  static __add_ref(topic, id, ref){
+    if(!Dropbox.__refs[topic]) {
+      // Dropbox.__id_counter[topic] = {}
+      Dropbox.__refs[topic] = {}
+      Dropbox.__lock[topic] = {}
+    }
+    if(!Dropbox.__refs[topic][id]) {
+      // Dropbox.__id_counter[topic][id] = 0
+      Dropbox.__refs[topic][id] = {}
+      Dropbox.__lock[topic][id] = null
+    }
+    const box_id = ++Dropbox.__id_counter
+    Dropbox.__refs[topic][id][box_id] =  ref
+    return box_id
+  }
+
+
+  static __remove_ref(topic, id, box_id) {
+
+    delete Dropbox.__refs[topic][id][box_id]
+  }
+
+
+
+  constructor({widget : {x, y, w, h}, course : {topic, id}}){
     super()
 
-    this.id = ++Dropbox.__id_counter
-    Dropbox.__refs[this.id] = this
+
+    
+    this.id = Dropbox.__add_ref(topic, id, this)
 
     this.state = {
       style : {
@@ -71,13 +97,15 @@ export class Dropbox extends Component{
   }
 
   componentDidMount(){
+    this.active = true
     document.body.addEventListener("mousemove", this._drag)
     document.body.addEventListener("mouseup", this._dragend)
   }
 
   componentWillUnmount(){
+    this.active = false
 
-    delete Dropbox.__refs[this.id]
+    Dropbox.__remove_ref(this.props.course.topic, this.props.course.id, this.id)
     document.body.removeEventListener("mouseup", this._dragend)
     document.body.removeEventListener("mousemove", this._drag)
   }
@@ -154,47 +182,54 @@ export class Dropbox extends Component{
     return true
   }
   _require_lock(event){
+    
+    const {topic, id} = this.props.course
 
+    // console.log(id + ":require lock")
     
     if(this._in_boundary(event)) {
 
       //console.log("in boundary")
-      if(!Dropbox.__lock) {
-        //console.log("no lock")
-        Dropbox.__lock = this.id
-        //console.log("require lock success")
+      if(!Dropbox.__lock[topic][id]) {
+        // console.log("no lock")
+        Dropbox.__lock[topic][id] = this.id
+        // console.log("require lock success")
       }
-      else if(Dropbox.__lock !=  this.id) {
+      else if(Dropbox.__lock[topic][id] !=  this.id) {
 
         //console.log("lock : " + Dropbox.__lock)
-        if(Dropbox.__refs[Dropbox.__lock]){
-          if(Dropbox.__refs[Dropbox.__lock]._request_release(this, event)) {
-            Dropbox.__lock = this.id
+        if(Dropbox.__refs[topic][id][Dropbox.__lock[topic][id]]){
+          if(Dropbox.__refs[topic][id][Dropbox.__lock[topic][id]]._request_release(this, event)) {
+            Dropbox.__lock[topic][id] = this.id
             //console.log("require lock success")
           }else{
 
-            //console.log("require lock fail")
+            // console.log("require lock fail")
           }
 
         }else {
-          Dropbox.__lock = this.id
-          //console.log("require lock success")
+          Dropbox.__lock[topic][id] = this.id
+          // console.log("require lock success")
         }
       }else {
 
-        //console.log("already have lock")
+        // console.log("already have lock")
       }
     }
     else {
-      //console.log("require lock fail")
+      // console.log("require lock fail")
     }
   }
 
   _drag(event){
 
+    if(!this.active) {return} 
+    
+
+    const {topic, id} = this.props.course
     this._require_lock(event)
 
-    if(Dropbox.__lock != this.id) {
+    if(Dropbox.__lock[topic][id] != this.id) {
       return
     }
 
@@ -242,6 +277,7 @@ export class Dropbox extends Component{
         }
       }
 
+      // console.log('set mode:' + this.mode + " | " + this.id)
       //console.log('change cursor to:' + this.mode)
       document.getElementById("app").style.cursor = this.mode
 
@@ -282,7 +318,7 @@ export class Dropbox extends Component{
             ...this.state.style,
             y : this.startState.y + yDiff,
             w : this.startState.w + xDiff,
-            h : this.startState.y - yDiff
+            h : this.startState.h - yDiff
           }
         }, (() => {
 
@@ -389,12 +425,14 @@ export class Dropbox extends Component{
   }
   _dragstart(event){
 
+    if(!this.active) {return} 
+    const {topic, id} = this.props.course
     this._require_lock(event)
-    if(Dropbox.__lock !== this.id) {
+    if(Dropbox.__lock[topic][id] !== this.id) {
       return
     }
 
-    const maxObj = Dropbox.__maxZIndexObj()
+    const maxObj = Dropbox.__maxZIndexObj(topic, id)
     
     this.startX = event.pageX
     this.startY = event.pageY
@@ -414,21 +452,25 @@ export class Dropbox extends Component{
       }).bind(this), 10)
     }).bind(this)
 
-    if(maxObj.id !== this.id) {
+    // console.log("max obj id:"  + maxObj.id)
+    
+    // if(maxObj.id !== this.id) {
       this.setState({
         style : {...this.state.style, zIndex : maxObj.state.style.zIndex + 1}
       }, () => {
         startDrag()
       })
-    } else {
-      startDrag()
-    }
+    // } else {
+    //   startDrag()
+    // }
 
 
   }
   _dragend() {
-    if(Dropbox.__lock === this.id) {
-      Dropbox.__lock = null
+    if(!this.active) {return}
+    const {topic, id} = this.props.course
+    if(Dropbox.__lock[topic][id] === this.id) {
+      Dropbox.__lock[topic][id] = null
     }
     this.mode = null
     clearInterval(this.dragI)
@@ -451,17 +493,23 @@ export class Dropbox extends Component{
 
   }
 
-  _go(n) {
+  _go(n, incre = true) {
 
     return (() => {
 
-      let zIndex = this.state.style.zIndex + n
-      if(zIndex < 10) {
-        zIndex = 10
+      if(incre) {
+        let zIndex = this.state.style.zIndex + n
+        if (zIndex < 10) {
+          zIndex = 10
+        }
+        this.setState({style: {...this.state.style, zIndex}}, (() => {
+          this._dispatch_change()
+        }).bind(this))
+      } else {
+         this.setState({style: {...this.state.style, zIndex : 8}}, (() => {
+          this._dispatch_change()
+        }).bind(this))
       }
-      this.setState({style : {...this.state.style, zIndex}}, (() => {
-        this._dispatch_change()
-      }).bind(this))
 
     }).bind(this)
 
@@ -489,6 +537,7 @@ export class Dropbox extends Component{
       onMouseDown={this._dragstart.bind(this)}
     >
       <div className="delete" >
+        <i className="material-icons" onClick={this._go(8, false)}>vertical_align_bottom</i>
         <i className="material-icons" onClick={this._go(1)}>arrow_upward</i>
         <i className="material-icons" onClick={this._go(-1)}>arrow_downward</i>
         <i className="material-icons" onClick={this._delete.bind(this)}>delete</i>

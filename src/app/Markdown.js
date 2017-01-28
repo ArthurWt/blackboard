@@ -30,9 +30,12 @@ import {connect} from 'react-redux'
 
 
 
+
 import {switch_to} from "./redux/actions/course"
 import {draw, clear, draw_segment} from "./redux/actions/draw"
 import {getDimensions} from "util/dimensions"
+
+import {dataTransferItemToBase64} from "util/data_helper"
 
 function loading_data({course, topic, id}, widget) {
   function loading() {
@@ -161,6 +164,8 @@ class Editor extends Component{
     })
 
   }
+  
+  
 
   _toggle(){
     this.setState({show_editor : !this.state.show_editor}, (() => {

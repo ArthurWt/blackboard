@@ -36,12 +36,13 @@ import {getDimensions} from 'util/dimensions'
 
 import {loading_data} from 'data/apis'
 
+/** 一些自定义组件 **/
 import {Dropbox} from "Dropbox"
 import {Markdown} from "Markdown"
-
 import {Fiddle} from "Fiddle"
-
 import {AudioRecorder} from "AudioRecorder"
+import {ColorPicker} from "./ColorPicker"
+import {paste_handler_factory} from "./paste_handler"
 
 class _Blackboard extends Component{
 
@@ -70,11 +71,11 @@ class _Blackboard extends Component{
     }
 
     this._keydown = this._keydown.bind(this)
-
-
     document.addEventListener("keydown",this._keydown)
-
   }
+  
+  
+  
 
 
   _redraw(){
@@ -106,11 +107,25 @@ class _Blackboard extends Component{
     this._redraw()
 
   }
+  
+  _paste(event){
+    const paste_handler = paste_handler_factory(this)
+    paste_handler(event)
+  }
+  componentDidMount(){
 
+    this._paste = this._paste.bind(this)
+    
+    document.addEventListener("paste", this._paste)
+    this.I = setInterval(this.saveWidgets.bind(this), 1000)
+
+    
+    this._reloading()
+  }
   componentWillUnmount(){
-
-
     clearInterval(this.I)
+
+    document.removeEventListener("paste", this._paste)
     document.removeEventListener("keydown",this._keydown)
   }
 
@@ -143,11 +158,7 @@ class _Blackboard extends Component{
 
 
 
-  componentDidMount(){
-
-    this.I = setInterval(this.saveWidgets.bind(this), 1000)
-    this._reloading()
-  }
+  
 
   saveWidgets(){
     const topic = this.props.course.topic
@@ -191,6 +202,15 @@ class _Blackboard extends Component{
     loading_data (this.props.course)
       .then( (({draw, widgets}) => {
           setTimeout( () => {
+
+            store.dispatch({
+              type : "SET_WIDGETS",
+              widgets : widgets,
+              topic : this.props.course.topic,
+              id : this.props.course.id
+            })
+            
+            /*
             widgets.map(widget => {
               store.dispatch({
                 type : "ADD_WIDGET",
@@ -199,6 +219,7 @@ class _Blackboard extends Component{
                 id : this.props.course.id
               })
             })
+            */
           }, 0)
 
 
@@ -317,18 +338,27 @@ class _Blackboard extends Component{
     
     return widgets.map(widget => {
       
+      const key = topic + "_" + id +  "_" + widget.id
       switch(widget.type) {
+        
         case "markdown":
-          return <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+          return <Dropbox key={key} course={this.props.course} widget={widget}>
             <Markdown course={this.props.course} widget={widget} />
           </Dropbox>
         case "code":
-          return <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+          return <Dropbox key={key} course={this.props.course} widget={widget}>
             <Fiddle course={this.props.course} widget={widget} />
           </Dropbox>
         case "audio" :
-          return  <Dropbox key={widget.id} course={this.props.course} widget={widget}>
+          return  <Dropbox key={key} course={this.props.course} widget={widget}>
             <AudioRecorder course={this.props.course} widget={widget} />
+          </Dropbox>
+        
+        case "image" :
+          return  <Dropbox key={key} course={this.props.course} widget={widget}>
+            <div>
+              <img style={{width : '100%', height : '100%'}} src={widget.img} />
+            </div>
           </Dropbox>
 
         
@@ -382,20 +412,6 @@ class _Blackboard extends Component{
 }
 
 
-
-const ColorPicker = ({pick, colors, color}) => {
-  return (
-    <div className="color">
-      {colors.map(c => {
-        return <div key={c}
-                    onClick={() => pick(c)}
-                    className={c === 'white' ? 'white' : ''}
-                    style={{backgroundColor : c, borderColor : color == c ? 'black' : "#eee"}} ></div>
-      })}
-
-    </div>
-  )
-}
 
 
 const map = (state) => {

@@ -41,6 +41,29 @@ const initial = {
 }
 
 
+const set_widgets = (state, topic, id, widgets) => {
+
+  const newState = {...state}
+  if(!newState['widgets'][topic]){
+    newState['widgets'][topic] = {}
+    if(!newState['widgets'][topic][id]) {
+      newState['widgets'][topic][id] = []
+    }
+  }
+  
+  
+  // let id_start = widgets.length
+  // widgets = widgets.map( (widget, i) => {
+  //   if(!widget) {
+  //    
+  //   }
+  //   widget.id = i
+  //   return widget
+  // })
+  
+  newState["widgets"][topic][id] = widgets
+  return newState
+}
 
 
 const add_widget = (state, topic, id, widget) => {
@@ -100,6 +123,9 @@ export const course = (state = initial, action) => {
       return {...state, topic : action.topic, id : action.id, title : action.title ? action.title : state.title}
     case "ADD_WIDGET" : 
       return add_widget(state, action.topic, action.id, action.widget)
+    case "SET_WIDGETS" :
+
+      return set_widgets(state, action.topic, action.id, action.widgets)
     case "CHANGE_WIDGET" :
       return change_widget(state, action.topic, action.id, action.widget, action.x, action.y, action.w, action.h, action.zIndex)
     
