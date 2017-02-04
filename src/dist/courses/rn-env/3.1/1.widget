@@ -1,0 +1,31 @@
+[
+	{
+		"type": "markdown",
+		"x": 80,
+		"y": 80,
+		"w": 704,
+		"h": 144,
+		"id": 1,
+		"zIndex": 31
+	},
+	{
+		"type": "image",
+		"x": 874,
+		"y": 54,
+		"w": 421,
+		"h": 620,
+		"zIndex": 20,
+		"img": "/courses/rn-env/3.1/1_668e618c18a2035f6b4440ca8d710c6d.png",
+		"id": 2
+	},
+	{
+		"type": "image",
+		"x": 91,
+		"y": 240,
+		"w": 746,
+		"h": 478.3368623676612,
+		"zIndex": 12,
+		"img": "/courses/rn-env/3.1/1_61283654bbf037c93d6df06f10aa3a2f.png",
+		"id": 3
+	}
+]

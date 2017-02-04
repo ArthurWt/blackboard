@@ -1,0 +1,62 @@
+[
+	{
+		"type": "image",
+		"x": 323,
+		"y": 69,
+		"w": 214,
+		"h": 230,
+		"zIndex": 13,
+		"img": "/courses/rn-env/2./1_9ed67c8b27827c9c9e0d58516c8ebe94.png",
+		"id": 3
+	},
+	{
+		"type": "image",
+		"x": 88,
+		"y": 70,
+		"w": 216,
+		"h": 240,
+		"zIndex": 11,
+		"img": "/courses/rn-env/2./1_55dc55c3a1c8ec059d3925412750c010.png",
+		"id": 4
+	},
+	{
+		"type": "image",
+		"x": 739,
+		"y": 190,
+		"w": 204,
+		"h": 236,
+		"zIndex": 13,
+		"img": "/courses/rn-env/2./1_e7aef72e10badd284bc724c68d34a357.png",
+		"id": 5
+	},
+	{
+		"type": "image",
+		"x": 970,
+		"y": 197,
+		"w": 224,
+		"h": 236,
+		"zIndex": 11,
+		"img": "/courses/rn-env/2./1_06e5de975025e8de34a3b6fc2dfd08da.png",
+		"id": 6
+	},
+	{
+		"type": "image",
+		"x": 980,
+		"y": 455,
+		"w": 216,
+		"h": 228,
+		"zIndex": 8,
+		"img": "/courses/rn-env/2./1_333394b75e21ebde716ff3397883acb7.png",
+		"id": 8
+	},
+	{
+		"type": "image",
+		"x": 714,
+		"y": 450,
+		"w": 250,
+		"h": 236,
+		"zIndex": 11,
+		"img": "/courses/rn-env/2./1_c99701d3389abaefdee1bf5d88c86b2f.png",
+		"id": 9
+	}
+]

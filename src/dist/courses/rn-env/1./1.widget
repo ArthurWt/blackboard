@@ -1,0 +1,50 @@
+[
+	{
+		"type": "image",
+		"x": 286,
+		"y": 84,
+		"w": 217,
+		"h": 114,
+		"zIndex": 42,
+		"img": "/courses/rn-env/1./1_eb1df5e47ae4d777535e7f0378e5a8c3.png",
+		"id": 1
+	},
+	{
+		"type": "markdown",
+		"x": 173,
+		"y": 503,
+		"w": 1099,
+		"h": 202.59999999999997,
+		"id": 2,
+		"zIndex": 15
+	},
+	{
+		"type": "image",
+		"x": 642,
+		"y": 75,
+		"w": 617,
+		"h": 403.67676767676767,
+		"zIndex": 12,
+		"img": "/courses/rn-env/1./1_60cddafd2828708f3135819a0497ea13.png",
+		"id": 3
+	},
+	{
+		"type": "markdown",
+		"x": 111,
+		"y": 295,
+		"w": 495,
+		"h": 177,
+		"id": 4,
+		"zIndex": 43
+	},
+	{
+		"type": "image",
+		"x": 50,
+		"y": 84,
+		"w": 222,
+		"h": 123,
+		"zIndex": 39,
+		"img": "/courses/rn-env/1./1_0389c4471d37c226c702d818293936c9.png",
+		"id": 5
+	}
+]

@@ -72,7 +72,7 @@ export class Dropbox extends Component{
 
 
 
-  constructor({widget : {x, y, w, h}, course : {topic, id}}){
+  constructor({widget : {x, y, w, h, zIndex}, course : {topic, id}}){
     super()
 
 
@@ -85,7 +85,7 @@ export class Dropbox extends Component{
         y,
         w,
         h,
-        zIndex : 10,
+        zIndex : zIndex || 10,
         cursor : null
       },
       draging : false
