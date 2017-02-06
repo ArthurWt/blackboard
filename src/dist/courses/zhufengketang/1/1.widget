@@ -1,0 +1,21 @@
+[
+	{
+		"type": "image",
+		"x": 202,
+		"y": 68,
+		"w": 532,
+		"h": 547,
+		"zIndex": 15,
+		"img": "/courses/zhufengketang/1/1_f290e869fd511adaa3ad84a843f534b2.png",
+		"id": 1
+	},
+	{
+		"type": "markdown",
+		"x": 787,
+		"y": 80,
+		"w": 391.19999999999993,
+		"h": 287,
+		"id": 2,
+		"zIndex": 28
+	}
+]

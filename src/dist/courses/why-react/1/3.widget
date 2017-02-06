@@ -1,0 +1,42 @@
+[
+	{
+		"type": "image",
+		"x": 79,
+		"y": 95,
+		"w": 636,
+		"h": 182,
+		"zIndex": 12,
+		"img": "/courses/why-react/1/3_8ac68183b860c90150a550e58868180a.png",
+		"id": 1
+	},
+	{
+		"type": "image",
+		"x": 77,
+		"y": 295,
+		"w": 629,
+		"h": 176,
+		"zIndex": 16,
+		"img": "/courses/why-react/1/3_0fad23e95059215f32356442da6ed9fc.png",
+		"id": 2
+	},
+	{
+		"type": "image",
+		"x": 758,
+		"y": 147,
+		"w": 471,
+		"h": 160,
+		"zIndex": 21,
+		"img": "/courses/why-react/1/3_ae4172d6dfc36aa0a81389d7edfce73a.png",
+		"id": 3
+	},
+	{
+		"type": "image",
+		"x": 756,
+		"y": 339,
+		"w": 453,
+		"h": 137,
+		"zIndex": 26,
+		"img": "/courses/why-react/1/3_58b76f707a6092d5aac3bf52ad189357.png",
+		"id": 4
+	}
+]
