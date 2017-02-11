@@ -2,6 +2,7 @@ class Shape{
   constructor(x, y) {
    	this.x = x
     this.y = y
+    
   }
   
   show(){
@@ -9,6 +10,7 @@ class Shape{
   }
 
 }
+
 
 class Rectangle extends Shape{
   
@@ -28,6 +30,7 @@ const rect = new Rectangle(100, 100, 50, 70)
 console.log(typeof rect)
 console.log(rect instanceof Shape)
 console.log(rect instanceof Rectangle)
+
 
 
 

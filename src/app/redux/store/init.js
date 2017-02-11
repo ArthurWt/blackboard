@@ -35,6 +35,7 @@ import {persistStore, autoRehydrate} from 'redux-persist'
 
 /** 引入 Reducer **/
 import {course} from "redux/reducers/course"
+import {layout} from 'redux/reducers/layout'
 
 /** 引入 middleware **/
 
@@ -50,7 +51,8 @@ import thunk from 'redux-thunk'
 export const init = () => {
   // 合并Reducer
   const reducers = {
-    course 
+    course,
+    layout 
   }
 
   const reducer = combineReducers(reducers);

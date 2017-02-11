@@ -1,11 +1,11 @@
 [
 	{
 		"type": "image",
-		"x": 80,
-		"y": 80,
-		"w": 1149,
-		"h": 553.1262683201804,
-		"zIndex": 10,
+		"x": 94,
+		"y": 57,
+		"w": 991,
+		"h": 489,
+		"zIndex": 14,
 		"img": "/courses/react-lifecycle/1/1_92b504ec16fad601d3e7a8707f119621.png",
 		"id": 1
 	}

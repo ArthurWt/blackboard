@@ -120,9 +120,9 @@
 	  Panel,
 	  null,
 	  _react2.default.createElement(
-	    'h1',
+	    'button',
 	    null,
-	    'hello world!'
+	    'Hello'
 	  )
 	);
 	_reactDom2.default.render(app, appEle);

@@ -6,6 +6,7 @@ const joined = "this-is-an-example"
       const [head, ...others] = word
       console.log("head:", head)
       console.log("others:", others)
+      
       return head.toUpperCase() + others.reduce((x, y) => x + y, "")
     })
 	.reduce( (s, word) => {
@@ -13,6 +14,7 @@ const joined = "this-is-an-example"
     	return s + " " + word  
     })
 console.log(joined)
+
 
 
 

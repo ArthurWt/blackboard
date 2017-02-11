@@ -1,4 +1,5 @@
 class Shape{
+  
   constructor(x, y) {
    	this.x = x
     this.y = y
@@ -13,4 +14,6 @@ class Shape{
 const shape = new Shape(100, 200)
 shape.show()
                 
+
+
 

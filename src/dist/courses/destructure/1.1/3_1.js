@@ -5,14 +5,16 @@
 // a = 1, b = 2, c = 3
 function f({a, b, c}){
   
-  
   console.log(a, b, c)
 }
 
 // 传递一个对象给函数f
 f({a : 1, b : 2, c :3}) 
   
-  
+
+
+
  
+
 
 

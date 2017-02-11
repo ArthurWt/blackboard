@@ -20,3 +20,4 @@ B.prototype.foo = function(){
 
 
 
+

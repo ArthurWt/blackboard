@@ -416,7 +416,8 @@ class _Blackboard extends Component{
 
 const map = (state) => {
   return {
-    course : state.course
+    course : state.course,
+    layout: state.layout
   }
 }
 export let Blackboard = connect(map)(_Blackboard)

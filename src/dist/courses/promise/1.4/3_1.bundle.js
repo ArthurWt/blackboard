@@ -68,6 +68,7 @@
 
 	// Promise.resolve
 
+
 	Promise.resolve("123").then(function (x) {
 	  document.body.append('123');
 	});

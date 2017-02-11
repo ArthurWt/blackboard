@@ -20,9 +20,10 @@ const appEle = document.getElementById("app")
 
 const app = <App
               doIt={() => alert(123)}
-              text="click me!" 
+              text="click me1!" 
               color="red" />
 ReactDOM.render( app, appEle)
+
 
 
 

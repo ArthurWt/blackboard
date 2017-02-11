@@ -1076,7 +1076,8 @@
 	
 	var map = function map(state) {
 	  return {
-	    course: state.course
+	    course: state.course,
+	    layout: state.layout
 	  };
 	};
 	var Blackboard = exports.Blackboard = (0, _reactRedux.connect)(map)(_Blackboard);
@@ -1586,7 +1587,6 @@
 	      //// 判断是否算作调整大小
 	      // //console.log(event.pageY, event.pageY, event.pageY)
 	
-	
 	      if (!this.state.draging) {
 	
 	        var dw = Math.abs(event.pageX - this.state.style.x);
@@ -1632,22 +1632,21 @@
 	        event.preventDefault();
 	      }
 	
-	      //console.log(this.mode)
+	      console.log(this.mode);
 	
 	      if (this.X && this.Y) {
 	
 	        var xDiff = this.X - this.startX;
 	        var yDiff = this.Y - this.startY;
-	        //console.log(xDiff, yDiff)
-	
+	        console.log(this.Y, this.startY);
 	        if (this.mode === 'nw-resize') {
 	
 	          this.setState({
 	            style: _extends({}, this.state.style, {
 	              x: this.startState.x + xDiff,
 	              y: this.startState.y + yDiff,
-	              w: this.startState.w - xDiff,
-	              h: this.startState.y - yDiff
+	              w: Math.max(this.startState.w - xDiff, 50),
+	              h: Math.max(this.startState.h - yDiff, 50)
 	            })
 	          }, function () {
 	
@@ -1657,8 +1656,8 @@
 	          this.setState({
 	            style: _extends({}, this.state.style, {
 	              y: this.startState.y + yDiff,
-	              w: this.startState.w + xDiff,
-	              h: this.startState.h - yDiff
+	              w: Math.max(this.startState.w + xDiff, 50),
+	              h: Math.max(this.startState.h - yDiff, 50)
 	            })
 	          }, function () {
 	
@@ -1667,8 +1666,8 @@
 	        } else if (this.mode == "se-resize") {
 	          this.setState({
 	            style: _extends({}, this.state.style, {
-	              w: this.startState.w + xDiff,
-	              h: this.startState.y + yDiff
+	              w: Math.max(this.startState.w + xDiff, 50),
+	              h: Math.max(this.startState.h + yDiff, 50)
 	            })
 	          }, function () {
 	
@@ -1679,8 +1678,8 @@
 	          this.setState({
 	            style: _extends({}, this.state.style, {
 	              x: this.startState.x + xDiff,
-	              w: this.startState.w - xDiff,
-	              h: this.startState.y + yDiff
+	              w: Math.max(this.startState.w - xDiff, 50),
+	              h: Math.max(this.startState.h + yDiff, 50)
 	            })
 	          }, function () {
 	
@@ -1689,8 +1688,8 @@
 	        } else if (this.mode === 'w-resize') {
 	          this.setState({
 	            style: _extends({}, this.state.style, {
-	              x: this.startState.x + xDiff,
-	              w: this.startState.w - xDiff
+	              x: Math.max(this.startState.x + xDiff, 50),
+	              w: Math.max(this.startState.w - xDiff, 50)
 	            })
 	
 	          }, function () {
@@ -1710,7 +1709,7 @@
 	        } else if (this.mode === 'e-resize') {
 	          this.setState({
 	            style: _extends({}, this.state.style, {
-	              w: this.startState.w + xDiff
+	              w: Math.max(this.startState.w + xDiff, 50)
 	            })
 	
 	          }, function () {
@@ -1719,7 +1718,7 @@
 	        } else if (this.mode === 's-resize') {
 	          this.setState({
 	            style: _extends({}, this.state.style, {
-	              h: this.startState.h + yDiff
+	              h: Math.max(this.startState.h + yDiff, 50)
 	            })
 	
 	          }, function () {
@@ -1738,6 +1737,7 @@
 	        }
 	      }
 	      this.X = event.pageX;
+	      console.log('setY:' + this.Y);
 	      this.Y = event.pageY;
 	    }
 	  }, {
@@ -1759,8 +1759,9 @@
 	
 	      var maxObj = Dropbox.__maxZIndexObj(topic, id);
 	
-	      this.startX = event.pageX;
-	      this.startY = event.pageY;
+	      this.startX = this.X = event.pageX;
+	      this.startY = this.Y = event.pageY;
+	      console.log('set startY:' + this.startY);
 	      var startDrag = function () {
 	
 	        _this3.startState = _extends({}, _this3.state.style);
@@ -3380,6 +3381,8 @@
 	
 	var _course = __webpack_require__(45);
 	
+	var _layout = __webpack_require__(55);
+	
 	var _socket_recorder = __webpack_require__(46);
 	
 	var _browser_hash = __webpack_require__(47);
@@ -3394,6 +3397,24 @@
 	 * 创建Redux-Store
 	 * @returns {*}
 	 */
+	
+	var init = exports.init = function init() {
+	  // 合并Reducer
+	  var reducers = {
+	    course: _course.course,
+	    layout: _layout.layout
+	  };
+	
+	  var reducer = (0, _redux.combineReducers)(reducers);
+	  // 创建Store
+	  // 这里是将所有的redux enhancer组合起来
+	  var store = (0, _redux.applyMiddleware)(_reduxThunk2.default, _socket_recorder.socket_recorder, _browser_hash.browser_hash)(_redux.createStore)(reducer);
+	
+	  window.store = store;
+	  return store;
+	};
+	
+	/** 引入 middleware **/
 	
 	/** 引入 Reducer **/
 	/***********************************************
@@ -3420,23 +3441,6 @@
 	 * SOFTWARE.
 	 *
 	 */
-	
-	var init = exports.init = function init() {
-	  // 合并Reducer
-	  var reducers = {
-	    course: _course.course
-	  };
-	
-	  var reducer = (0, _redux.combineReducers)(reducers);
-	  // 创建Store
-	  // 这里是将所有的redux enhancer组合起来
-	  var store = (0, _redux.applyMiddleware)(_reduxThunk2.default, _socket_recorder.socket_recorder, _browser_hash.browser_hash)(_redux.createStore)(reducer);
-	
-	  window.store = store;
-	  return store;
-	};
-	
-	/** 引入 middleware **/
 
 /***/ },
 /* 29 */
@@ -4860,7 +4864,7 @@
 	
 	
 	// module
-	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n}\n#app {\n  cursor: url(" + __webpack_require__(52) + "), auto;\n}\n.menu {\n  position: absolute;\n  z-index: 1000;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  position: relative;\n  z-index: 9;\n  width: 100%;\n  height: 100%;\n  -webkit-touch-callout: none; /* iOS Safari */\n  -webkit-user-select: none; /* Chrome/Safari/Opera */\n  -khtml-user-select: none; /* Konqueror */\n  -moz-user-select: none; /* Firefox */\n  -ms-user-select: none; /* Internet Explorer/Edge */\n  user-select: none; /* Non-prefixed version, currently\n                                  not supported by any browser */\n}\n.color {\n  position: fixed;\n  right: 5px;\n  bottom: 0;\n  z-index: 999;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n  z-index: 999;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n  z-index: 999;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 250px);\n  font-size: 28px;\n  opacity: 0.5;\n  top: 20px;\n  width: 500px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.fiddle .frame {\n  width: 30%;\n  float: left;\n  height: 100%;\n}\n.fiddle .frame iframe {\n  width: 100%;\n}\n.fiddle .editor {\n  border-right: 1px solid #eee;\n  font-size: 20px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  overflow: hidden;\n}\n.fiddle .options {\n  border-left: 1px solid #eee;\n  border-right: 1px solid #eee;\n  display: block;\n  z-index: 12;\n  background-color: #f2f3f4;\n  overflow: hidden;\n  height: 30px;\n}\n.fiddle .options .option {\n  float: left;\n  margin-right: 10px;\n  padding: 3px 10px;\n  line-height: 30px;\n}\n.fiddle .options .option:hover {\n  color: #0f0;\n}\n.dropbox {\n  position: absolute;\n  box-sizing: border-box;\n  overflow: hidden;\n  top: 0;\n  left: 0;\n  z-index: 10;\n  background-color: #fff;\n  resize: true;\n  border: 1px solid #f2f3f4;\n}\n.dropbox:hover {\n  border: 1px solid #eee;\n}\n.dropbox:hover .delete {\n  display: block;\n}\n.dropbox .delete {\n  color: #b5d592;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: none;\n  z-index: 999;\n}\n.markdown {\n  width: 100%;\n  min-width: 300px;\n  position: relative;\n}\n.markdown:hover .btn {\n  display: block;\n}\n.markdown .btn {\n  position: absolute;\n  display: none;\n  width: 20px;\n  height: 20px;\n  bottom: 10px;\n  right: 10px;\n  color: #b5d592;\n  text-align: center;\n  line-height: 20px;\n}\n.markdown .markdown-editor {\n  width: 50%;\n  float: left;\n}\n.markdown .markdown-editor textarea {\n  width: 100%;\n  border: none;\n  outline: none;\n  height: 100%;\n}\n.markdown .preview {\n  width: 50%;\n  float: left;\n  word-wrap: break-word;\n}\n.markdown .preview p {\n  font-size: 1rem;\n  color: #666;\n  margin-bottom: 10px;\n}\n.markdown .preview h1,\n.markdown .preview h2,\n.markdown .preview h3,\n.markdown .preview h4 {\n  margin-bottom: 10px;\n  font-family: \"Microsoft YaHei\";\n  color: #333;\n}\n.markdown .preview h1 {\n  font-size: 1.8rem;\n}\n.markdown .preview h2 {\n  font-szie: 1.6rem;\n}\n.markdown .preview h3 {\n  font-size: 1.4rem;\n}\n.markdown .preview h4 {\n  font-size: 1.1rem;\n}\n.markdown .preview ul,\n.markdown .preview ol {\n  padding-left: 3rem;\n}\n.markdown .preview pre {\n  margin: 10px;\n  padding: 10px;\n  background-color: #f2f3f4;\n}\n.tools {\n  position: fixed;\n  bottom: 0;\n  z-index: 999;\n}\n.tools .tools-btn {\n  width: 50px;\n  height: 50px;\n  text-align: center;\n  line-height: 50px;\n  color: #b5d592;\n  float: left;\n}\n.tools .tools-btn:hover i {\n  color: #0f0;\n}\n.tools .tools-btn i {\n  font-size: 48px;\n}\n.clearfix:after {\n  clear: both;\n}\n.drag-area {\n  height: 4px;\n  background-color: #eee;\n}\n.CodeMirror {\n  height: 100%;\n}\n", ""]);
+	exports.push([module.id, "* {\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n}\n#app {\n  cursor: url(" + __webpack_require__(52) + "), auto;\n  width: 100%;\n}\n.menu {\n  position: absolute;\n  z-index: 1000;\n  background-color: #fff;\n  top: 0;\n  left: -290px;\n  width: 300px;\n  border-right: 10px solid #eee;\n  padding-right: 20px;\n  transition: left 0.3s ease;\n}\n.menu:hover {\n  border-right: 1px solid #eee;\n  left: 0;\n}\n.menu-item {\n  color: #333;\n  font-family: 'Microsoft YaHei';\n}\n.menu-item:hover {\n  font-weight: bold;\n}\n.canvas {\n  position: relative;\n  z-index: 9;\n  width: 100%;\n  height: 100%;\n  -webkit-touch-callout: none; /* iOS Safari */\n  -webkit-user-select: none; /* Chrome/Safari/Opera */\n  -khtml-user-select: none; /* Konqueror */\n  -moz-user-select: none; /* Firefox */\n  -ms-user-select: none; /* Internet Explorer/Edge */\n  user-select: none; /* Non-prefixed version, currently\n                                  not supported by any browser */\n}\n.color {\n  position: fixed;\n  right: 5px;\n  bottom: 0;\n  z-index: 999;\n}\n.color div {\n  float: left;\n  width: 50px;\n  height: 50px;\n  border: 2px solid #eee;\n}\n.cleaner {\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  padding: 10px;\n  font-size: 20px;\n  color: #666;\n  border: 1px solid #eee;\n  z-index: 999;\n}\n.cleaner:hover {\n  color: #333;\n}\n.eraser {\n  position: absolute;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: 1px solid #000;\n}\n.pages {\n  position: absolute;\n  top: 20px;\n  left: 50px;\n  z-index: 999;\n}\n.pages .page {\n  margin-left: 5px;\n  color: #000;\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: #efefef;\n  line-height: 30px;\n  text-align: center;\n  color: #fff;\n  float: left;\n}\n.title {\n  position: absolute;\n  left: calc(50% - 250px);\n  font-size: 28px;\n  opacity: 0.5;\n  top: 20px;\n  width: 500px;\n  text-align: center;\n  padding-bottom: 5px;\n  border-bottom: 1px solid #a4ee97;\n}\n.fiddle .frame {\n  width: 30%;\n  float: left;\n  height: 100%;\n}\n.fiddle .frame iframe {\n  width: 100%;\n}\n.fiddle .editor {\n  border-right: 1px solid #eee;\n  font-size: 20px;\n  width: 70%;\n  float: left;\n  height: 100%;\n  overflow: hidden;\n}\n.fiddle .options {\n  border-left: 1px solid #eee;\n  border-right: 1px solid #eee;\n  display: block;\n  z-index: 12;\n  background-color: #f2f3f4;\n  overflow: hidden;\n  height: 30px;\n}\n.fiddle .options .option {\n  float: left;\n  margin-right: 10px;\n  padding: 3px 10px;\n  line-height: 30px;\n}\n.fiddle .options .option:hover {\n  color: #0f0;\n}\n.dropbox {\n  position: absolute;\n  box-sizing: border-box;\n  overflow: hidden;\n  top: 0;\n  left: 0;\n  z-index: 10;\n  background-color: #fff;\n  resize: true;\n  border: 1px solid #f2f3f4;\n}\n.dropbox:hover {\n  border: 1px solid #eee;\n}\n.dropbox:hover .delete {\n  display: block;\n}\n.dropbox .delete {\n  color: #b5d592;\n  position: absolute;\n  top: 10px;\n  right: 10px;\n  display: none;\n  z-index: 999;\n}\n.markdown {\n  width: 100%;\n  min-width: 300px;\n  position: relative;\n}\n.markdown:hover .btn {\n  display: block;\n}\n.markdown .btn {\n  position: absolute;\n  display: none;\n  width: 20px;\n  height: 20px;\n  bottom: 10px;\n  right: 10px;\n  color: #b5d592;\n  text-align: center;\n  line-height: 20px;\n}\n.markdown .markdown-editor {\n  width: 50%;\n  float: left;\n}\n.markdown .markdown-editor textarea {\n  width: 100%;\n  border: none;\n  outline: none;\n  height: 100%;\n}\n.markdown .preview {\n  width: 50%;\n  float: left;\n  word-wrap: break-word;\n}\n.markdown .preview p {\n  font-size: 1rem;\n  color: #666;\n  margin-bottom: 10px;\n}\n.markdown .preview h1,\n.markdown .preview h2,\n.markdown .preview h3,\n.markdown .preview h4 {\n  margin-bottom: 10px;\n  font-family: \"Microsoft YaHei\";\n  color: #333;\n}\n.markdown .preview h1 {\n  font-size: 1.8rem;\n}\n.markdown .preview h2 {\n  font-szie: 1.6rem;\n}\n.markdown .preview h3 {\n  font-size: 1.4rem;\n}\n.markdown .preview h4 {\n  font-size: 1.1rem;\n}\n.markdown .preview ul,\n.markdown .preview ol {\n  padding-left: 3rem;\n}\n.markdown .preview pre {\n  margin: 10px;\n  padding: 10px;\n  background-color: #f2f3f4;\n}\n.tools {\n  position: fixed;\n  bottom: 0;\n  z-index: 999;\n}\n.tools .tools-btn {\n  width: 50px;\n  height: 50px;\n  text-align: center;\n  line-height: 50px;\n  color: #b5d592;\n  float: left;\n}\n.tools .tools-btn:hover i {\n  color: #0f0;\n}\n.tools .tools-btn i {\n  font-size: 48px;\n}\n.clearfix:after {\n  clear: both;\n}\n.drag-area {\n  height: 4px;\n  background-color: #eee;\n}\n.CodeMirror {\n  height: 100%;\n}\n", ""]);
 	
 	// exports
 
@@ -5178,6 +5182,36 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 54 */,
+/* 55 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.layout = undefined;
+	
+	var _dimensions = __webpack_require__(13);
+	
+	var initial = {
+	  width: (0, _dimensions.getDimensions)().width,
+	  height: (0, _dimensions.getDimensions)().height
+	};
+	var layout = exports.layout = function layout() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initial;
+	  var action = arguments[1];
+	
+	
+	  switch (action.type) {
+	    case "WINDOW_RESIZE":
+	      return { width: action.width, height: action.height };
+	  }
+	  return state;
+	};
 
 /***/ }
 /******/ ]);

@@ -103,14 +103,14 @@
 	    key: '_refresh',
 	    value: function _refresh() {
 
-	      // forceUpdate不会导致子组件的刷新
-	      this.forceUpdate();
+	      //forceUpdate不会导致子组件的刷新
+	      //this.forceUpdate()
 
 	      // 更新key会导致子组件的刷新
 
-	      //this.setState({
-	      //	key : new Date().getTime()  
-	      //})
+	      this.setState({
+	        key: new Date().getTime()
+	      });
 	    }
 	  }, {
 	    key: 'render',

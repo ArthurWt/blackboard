@@ -15,12 +15,16 @@ const students = [
 // select name from users where scroe > 60
 const selected = students.reduce( (list, student) => {
   if(student.score > 60){
+    //list.push(student)
     list = [...list, student]
   }
   return list
 }, [])
 
 console.log(selected)
+
+
+
 
 
 

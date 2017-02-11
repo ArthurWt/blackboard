@@ -3,7 +3,7 @@
 Promise.resolve('hello')
 .then ( data => {
   console.log(data)
-  
+ 
   return new Promise( (resolve, reject) => {
     fetch("https://ketang.zhufengpeixun.cn/token")
     .then(response => {
@@ -16,6 +16,7 @@ Promise.resolve('hello')
 .then( jsonData => {
   console.log(jsonData)
 })
+
 
 
 

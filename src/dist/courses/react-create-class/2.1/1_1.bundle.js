@@ -121,7 +121,7 @@
 	  doIt: function doIt() {
 	    return alert(123);
 	  },
-	  text: 'click me!',
+	  text: 'click me1!',
 	  color: 'red' });
 	_reactDom2.default.render(app, appEle);
 

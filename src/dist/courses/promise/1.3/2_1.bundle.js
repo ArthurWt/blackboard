@@ -67,7 +67,7 @@
 	"use strict";
 
 	function executor(resolve, reject) {
-	  throw "error";
+	  throw "Error";
 	}
 
 	var promise = new Promise(executor);

@@ -20,8 +20,11 @@ class Panel extends Component {
 
 const appEle = document.getElementById("app")
 
-const app = <Panel><h1>hello world!</h1></Panel>
+const app = <Panel><button>Hello</button></Panel>
 ReactDOM.render( app, appEle)
+
+
+
 
 
 

@@ -78,6 +78,7 @@
 	// select name from users where scroe > 60
 	var selected = students.reduce(function (list, student) {
 	  if (student.score > 60) {
+	    //list.push(student)
 	    list = [].concat(_toConsumableArray(list), [student]);
 	  }
 	  return list;

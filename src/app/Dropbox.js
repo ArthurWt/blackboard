@@ -223,7 +223,7 @@ export class Dropbox extends Component{
 
   _drag(event){
 
-    if(!this.active) {return} 
+    if(!this.active) {return}
     
 
     const {topic, id} = this.props.course
@@ -235,7 +235,6 @@ export class Dropbox extends Component{
 
     //// 判断是否算作调整大小
     // //console.log(event.pageY, event.pageY, event.pageY)
-
 
     if(!this.state.draging) {
 
@@ -289,14 +288,13 @@ export class Dropbox extends Component{
       event.preventDefault()  
     }
     
-    //console.log(this.mode)
+    console.log(this.mode)
 
     if (this.X && this.Y) {
 
       const xDiff = this.X - this.startX
       const yDiff = this.Y - this.startY
-      //console.log(xDiff, yDiff)
-
+      console.log(this.Y, this.startY)
       if(this.mode === 'nw-resize') {
 
         this.setState({
@@ -304,8 +302,8 @@ export class Dropbox extends Component{
             ...this.state.style,
             x : this.startState.x + xDiff,
             y : this.startState.y + yDiff,
-            w : this.startState.w - xDiff,
-            h : this.startState.y - yDiff
+            w : Math.max(this.startState.w - xDiff, 50),
+            h : Math.max(this.startState.h - yDiff, 50)
           }
         }, (() => {
 
@@ -317,8 +315,8 @@ export class Dropbox extends Component{
           style : {
             ...this.state.style,
             y : this.startState.y + yDiff,
-            w : this.startState.w + xDiff,
-            h : this.startState.h - yDiff
+            w : Math.max(this.startState.w + xDiff, 50),
+            h : Math.max(this.startState.h - yDiff, 50)
           }
         }, (() => {
 
@@ -330,8 +328,8 @@ export class Dropbox extends Component{
         this.setState({
           style : {
             ...this.state.style,
-            w : this.startState.w + xDiff,
-            h : this.startState.y + yDiff
+            w : Math.max(this.startState.w + xDiff, 50),
+            h : Math.max(this.startState.h + yDiff, 50)
           }
         }, (() => {
 
@@ -344,8 +342,8 @@ export class Dropbox extends Component{
           style : {
             ...this.state.style,
             x : this.startState.x + xDiff,
-            w : this.startState.w - xDiff,
-            h : this.startState.y + yDiff
+            w : Math.max(this.startState.w - xDiff, 50),
+            h : Math.max(this.startState.h + yDiff, 50)
           }
         }, (() => {
 
@@ -357,8 +355,8 @@ export class Dropbox extends Component{
         this.setState({
           style : {
             ...this.state.style,
-            x : this.startState.x + xDiff,
-            w : this.startState.w - xDiff
+            x : Math.max(this.startState.x + xDiff, 50),
+            w : Math.max(this.startState.w - xDiff,50)
           }
 
         }, (() => {
@@ -382,7 +380,7 @@ export class Dropbox extends Component{
         this.setState({
           style : {
             ...this.state.style,
-            w : this.startState.w + xDiff
+            w : Math.max(this.startState.w + xDiff, 50)
           }
 
         }, (() => {
@@ -393,7 +391,7 @@ export class Dropbox extends Component{
         this.setState({
           style : {
             ...this.state.style,
-            h : this.startState.h + yDiff
+            h : Math.max(this.startState.h + yDiff, 50)
           }
 
         }, (() => {
@@ -420,6 +418,7 @@ export class Dropbox extends Component{
 
     }
     this.X = event.pageX
+    console.log('setY:' + this.Y)
     this.Y = event.pageY
 
   }
@@ -434,8 +433,9 @@ export class Dropbox extends Component{
 
     const maxObj = Dropbox.__maxZIndexObj(topic, id)
     
-    this.startX = event.pageX
-    this.startY = event.pageY
+    this.startX = this.X = event.pageX
+    this.startY = this.Y = event.pageY
+    console.log('set startY:'+this.startY)
     const startDrag = (() => {
       
       

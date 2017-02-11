@@ -14,3 +14,4 @@ console.log(a, b, others)
 
 //结果 others = {c : 3, d : 4}, a = 1, b = 2
 
+
