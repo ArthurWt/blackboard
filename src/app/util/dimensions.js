@@ -26,11 +26,13 @@
 
 export const getDimensions = () => {
 
+  /*
   const width = window.innerWidth
     || document.documentElement.clientWidth
     || document.body.clientWidth
+    */
   
-
+  const width = document.body.offsetWidth
   const height = window.innerHeight
     || document.documentElement.clientHeight
     || document.body.clientHeight

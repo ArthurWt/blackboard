@@ -265,6 +265,7 @@ class _Blackboard extends Component{
     if(this.draw) {
       const course = this.props.course
       store.dispatch(draw(course.course, course.topic, course.id, x, y, this.state.color, this.state.penSize))
+      console.log(event.clientX, event.clientY)
       this._draw(this.ctx, this.state.color, x * 2, y * 2, this.state.penSize)
     }
     this.setState({
